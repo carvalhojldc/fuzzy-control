@@ -13,23 +13,26 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // end UI_connection
 
+    ui_rw = new RuleWindow();
+    ui_fw = new FunctionWindow();
+
     ui->setupUi(this);
 
     // threads
-    timerRead = new QTimer(0);
-    timerWrite = new QTimer(0);
+    timerFuzzyControl = new QTimer(0);
+    timerGraph        = new QTimer(0);
 
-    threadRead = new QThread(this);
-    threadWrite = new QThread(this);
+    threadFuzzyControl = new QThread(this);
+    threadGraph        = new QThread(this);
 
-    timerRead->start(100);
-    timerWrite->start(100);
+    timerFuzzyControl->start(100);
+    timerGraph->start(100);
 
-    timerRead->moveToThread(threadRead);
-    connect(timerRead, SIGNAL(timeout()), this, SLOT(receiveData()));
+    timerFuzzyControl->moveToThread(threadFuzzyControl);
+    connect(timerFuzzyControl, SIGNAL(timeout()), this, SLOT(myFuzzyControl()));
 
-    timerWrite->moveToThread(threadWrite);
-    connect(timerWrite, SIGNAL(timeout()), this, SLOT(sendData()));
+    timerGraph->moveToThread(threadFuzzyControl);
+    connect(timerGraph, SIGNAL(timeout()), this, SLOT(myGraph()));
     // end threads
 
     // Enable_graphs
@@ -55,25 +58,27 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // end config
 
-    connect(ui->pb_configFuzzyFunction, SIGNAL(clicked(bool)), this, SLOT(configFuzzyFunction()));
+    connect(ui->pb_configFuzzyFunction, SIGNAL(clicked(bool)), this, SLOT(UI_functionWindow()));
+    connect(ui->pb_configFuzzyRules, SIGNAL(clicked(bool)), this, SLOT(UI_ruleWindow()));
 }
 
 MainWindow::~MainWindow()
 {
-    threadWrite->quit();
-    threadWrite->wait();
+    threadFuzzyControl->quit();
+    threadFuzzyControl->wait();
 
-    threadRead->quit();
-    threadRead->wait();
+    threadGraph->quit();
+    threadGraph->wait();
 
-    delete fuzzyControl;
     delete connection;
+    delete ui_rw;
+    delete ui_fw;
     delete ui;
 }
 
 void MainWindow::connectServer()
 {
-    fuzzyControl = new FuzzyControl();
+    //fuzzyControl = new FuzzyControl();
 
     if(connection->getSatus())
     {
@@ -82,8 +87,8 @@ void MainWindow::connectServer()
         ui->labelStatus->setText(mensagem);
         ui->labelStatus->setStyleSheet("QLabel { color : green; }");
 
-        threadWrite->start();
-        threadRead->start();
+        threadFuzzyControl->start();
+        threadGraph->start();
 
         UI_configGraphWrite();
         UI_configGraphRead();
@@ -98,9 +103,6 @@ void MainWindow::connectServer()
 
 void MainWindow::UI_configGraphWrite()
 {
-    QVector<QString> graphWrite = {"Sinal Enviado", "Sinal Calculado"};
-    QVector<QString> graphWriteColor = { "blue" , "red" };
-
     ui->graphWrite->legend->setVisible(true);
     ui->graphWrite->axisRect()->insetLayout()->setInsetAlignment(0,Qt::AlignLeft|Qt::AlignBottom);
 
@@ -110,6 +112,8 @@ void MainWindow::UI_configGraphWrite()
          ui->graphWrite->graph(i)->setAntialiasedFill(false);
          ui->graphWrite->graph(i)->setName(graphWrite.at(i));
          ui->graphWrite->graph(i)->setPen(QPen(graphWriteColor.at((i))));
+         ui->graphWrite->graph(i)->setVisible(false);
+         ui->graphWrite->graph(i)->removeFromLegend();
     }
 
     ui->graphWrite->xAxis->setLabel("Tempo (s)");
@@ -126,9 +130,6 @@ void MainWindow::UI_configGraphWrite()
 
 void MainWindow::UI_configGraphRead()
 {
-    QVector<QString> graphRead = { "Erro", "Set Point", "Tanque 1", "Tanque 2" };
-    QVector<QString> graphReadColor = { "red", "black", "blue", "green" };
-
     ui->graphRead->legend->setVisible(true);
     ui->graphRead->axisRect()->insetLayout()->setInsetAlignment(0,Qt::AlignLeft|Qt::AlignBottom);
 
@@ -138,8 +139,8 @@ void MainWindow::UI_configGraphRead()
         ui->graphRead->graph(i)->setAntialiasedFill(false);
         ui->graphRead->graph(i)->setName(graphRead.at(i));
         ui->graphRead->graph(i)->setPen(QPen(graphReadColor.at(i)));
-        //ui->graphRead->graph(i)->setVisible(false);
-        //ui->graphRead->graph(i)->removeFromLegend();
+        ui->graphRead->graph(i)->setVisible(false);
+        ui->graphRead->graph(i)->removeFromLegend();
     }
 
     ui->graphRead->xAxis->setLabel("Tempo (s)");
@@ -155,48 +156,70 @@ void MainWindow::UI_configGraphRead()
 
 void MainWindow::UI_DisplayGraph()
 {
-    if(ui->cb_showChannel0->isChecked())
+    QVector<bool> signalWrite;
+    QVector<bool> signalRead;
+
+    signalRead.push_back( ui->cb_showError->isChecked() );
+    signalRead.push_back( ui->cb_showSetPoint->isChecked() );
+    signalRead.push_back( ui->cb_showChannel0->isChecked() );
+    signalRead.push_back( ui->cb_showChannel1->isChecked() );
+
+    for(int i=0; i<signalRead.size(); i++)
     {
+        ui->graphRead->graph(i)->setVisible( signalRead.at(i) );
 
+        if( signalRead.at(i) )
+            ui->graphRead->graph(i)->addToLegend();
+        else
+            ui->graphRead->graph(i)->removeFromLegend();
     }
-    else
+
+    signalWrite.push_back( ui->cb_showsignalSend->isChecked() );
+    signalWrite.push_back( ui->cb_showsignalCalc->isChecked() );
+
+    for(int i=0; i<signalWrite.size(); i++)
     {
+        ui->graphWrite->graph(i)->setVisible( signalWrite.at(i) );
 
+        if( signalWrite.at(i) )
+            ui->graphWrite->graph(i)->addToLegend();
+        else
+            ui->graphWrite->graph(i)->removeFromLegend();
     }
 
-    if(ui->cb_showChannel1->isChecked())
-    {
-
-    }
-    else if(ui->cb_showError->isChecked())
-    {
-
-    }
-    else if(ui->cb_showSetPoint->isChecked())
-    {
-
-    }
-    else if(ui->cb_showsignalCalc->isChecked())
-    {
-
-    }
-    else if(ui->cb_showsignalSend->isChecked())
-    {
-
-    }
 }
-
+/*
 void MainWindow::receiveData()
 {
-
+    if(ui->cb_channelRead0->isChecked());
+    if(ui->cb_channelRead1->isChecked());
 }
 
 void MainWindow::sendData()
 {
+    int channel = ui->cb_typesSigns->currentIndex();
+    connection->sendSignal(channel, 4);
+
+}
+*/
+void MainWindow::UI_functionWindow()
+{
+    ui_fw->show();
+}
+
+void MainWindow::UI_ruleWindow()
+{
 
 }
 
-void MainWindow::configFuzzyFunction()
+void MainWindow::myFuzzyControl()
 {
-    fuzzyConfigUI.show();
+    static int i = 0;
+    //qDebug() << "fuzzyControl " << i++;
+}
+
+void MainWindow::myGraph()
+{
+    static int i = 0;
+    //qDebug() << "graph" << i++;
 }

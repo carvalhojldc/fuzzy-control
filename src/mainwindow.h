@@ -6,10 +6,15 @@
 #include <QThread>
 #include <QStringList>
 #include "qcustomplot.h"
+
+#include "functionwindow.h"
+#include "rulewindow.h"
+
+#include "signal.h"
 #include "connection.h"
 #include "fuzzy.h"
-#include "fuzzyConfigUI.h"
-#include "signal.h"
+
+#include <QDebug>
 
 namespace Ui {
 class MainWindow;
@@ -30,27 +35,33 @@ private slots:
     void UI_configGraphRead();
     void UI_DisplayGraph();
 
-    void receiveData();
-    void sendData();
+    void UI_functionWindow();
+    void UI_ruleWindow();
 
-    void configFuzzyFunction();
+    void myFuzzyControl();
+    void myGraph();
 
 
 private:
     Ui::MainWindow *ui;
+    FunctionWindow *ui_fw;
+    RuleWindow *ui_rw;
 
     Connection *connection;
 
-    QTimer *timerWrite;
-    QTimer *timerRead;
-
-    QThread *threadWrite;
-    QThread *threadRead;
-
-    FuzzyControl *fuzzyControl;
     Fuzzy myFuzzy;
-    FuzzyConfigUI fuzzyConfigUI;
 
+    QTimer *timerFuzzyControl;
+    QTimer *timerGraph;
+
+    QThread *threadFuzzyControl;
+    QThread *threadGraph;
+
+    const QVector<QString> graphRead      = { "Erro", "Set Point", "Tanque 1", "Tanque 2" };
+    const QVector<QString> graphReadColor = { "red",  "black",     "blue",     "green" };
+
+    const QVector<QString> graphWrite      = {"Sinal Enviado", "Sinal Calculado"};
+    const QVector<QString> graphWriteColor = { "blue",         "red" };
 
 };
 

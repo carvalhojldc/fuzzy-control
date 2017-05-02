@@ -58,8 +58,16 @@ bool Connection::getSatus() const
     return quanser->getStatus();
 }
 
-int Connection::getPort() const { return port; }
+int Connection::getPort() const
+{ return port; }
 
-QString Connection::getIpAdress() const { return ipAdress; }
+QString Connection::getIpAdress() const
+{ return ipAdress; }
+
+double Connection::getSignal(const int channel) const
+{ return quanser->readAD(channel); }
+
+int Connection::sendSignal(const int channel, const float signal)
+{ return quanser->writeDA(channel, signal); }
 
 

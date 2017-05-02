@@ -1,6 +1,7 @@
-#ifndef FUZZYUI_H
-#define FUZZYUI_H
+#ifndef FUNCTIONWINDOW_H
+#define FUNCTIONWINDOW_H
 
+#include "qcustomplot.h"
 #include <QDialog>
 #include <QMessageBox>
 
@@ -9,30 +10,37 @@
 #include <QDebug>
 
 namespace Ui {
-class FuzzyConfigUI;
+class FunctionWindow;
 }
 
-class FuzzyConfigUI : public QDialog
+class FunctionWindow : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit FuzzyConfigUI(QWidget *parent = 0);
-    ~FuzzyConfigUI();
+    explicit FunctionWindow(QWidget *parent = 0);
+    ~FunctionWindow();
 
 private slots:
     void controlInput(int id);
     void currentInput();
 
+    FuzzyVariable * getIO();
+
+    void updateCurrentData(FuzzyVariable * io);
+
+    void insertIORange(void);
+
     void insertFunction(void);
-    FuzzyVariable *getIO();
-    void updateCurrentData(FuzzyVariable *io);
+    void deleteFunction(void);
+    void editFunction(void);
+
+    void plotterLegendClick(QCPLegend *l, QCPAbstractLegendItem *ai, QMouseEvent *me);
 
 private:
-    Ui::FuzzyConfigUI *ui;
+    Ui::FunctionWindow *ui;
     Fuzzy myFuzzy;
-
 
 };
 
-#endif // FUZZYUI_H
+#endif // FUNCTIONWINDOW_H

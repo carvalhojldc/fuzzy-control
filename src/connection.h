@@ -26,6 +26,10 @@ class Connection : public QDialog
 
         int getPort() const;
 
+        double getSignal(const int channel) const;
+
+        int sendSignal(const int channel, const float signal);
+
     private slots:
         void setConnection();
 

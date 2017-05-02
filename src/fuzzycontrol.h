@@ -1,11 +1,14 @@
 #ifndef FUZZYCONTROL_H
 #define FUZZYCONTROL_H
 
+#include "fuzzy.h"
 
 class FuzzyControl
 {
+private:
+    Fuzzy myFuzzy;
+
 public:
-    FuzzyControl();
 };
 
 #endif // FUZZYCONTROL_H

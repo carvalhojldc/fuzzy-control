@@ -28,18 +28,23 @@ SOURCES += main.cpp\
     fuzzy.cpp \
     qcustomplot.cpp \
     connection.cpp \
-    fuzzyConfigUI.cpp \
-    signal.cpp
+    signal.cpp \
+    fuzzycontrol.cpp \
+    functionwindow.cpp \
+    rulewindow.cpp
 
 HEADERS  += mainwindow.h \
     fuzzy.h \
     tanque.h \
     signal.h \
     connection.h \
-    fuzzyConfigUI.h \
     qcustomplot.h \
-    quanser.h
+    quanser.h \
+    fuzzycontrol.h \
+    functionwindow.h \
+    rulewindow.h
 
 FORMS    += mainwindow.ui \
     connection.ui \
-    fuzzyConfig.ui
+    functionwindow.ui \
+    rulewindow.ui

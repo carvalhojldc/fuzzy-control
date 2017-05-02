@@ -2,53 +2,131 @@
 #define FUZZY_H
 
 #include <QStringList>
-
 #include <QList>
-#include <QStack>
-#include <vector>
+#include <QVector>
 
-using namespace  std;
+#include <QtMath>
 
+#include <QMessageBox>
 class FuzzyFunction
 {
 protected:
-    QStringList nameFuzzyFunctions = { "Triangle", "Trapeze", "Gaus" };
+    const QStringList listFuzzyFunctions = { "Triangle", "Trapeze" };
+    const QList<int> listFuzzyFunctions_numberPoints = { 3, 4 };
 
 public:
-    QString range;
+    int getNumberPoints()
+    {
+        if(type < 0 || type+1 > listFuzzyFunctions_numberPoints.size())
+            return -1;
+
+        return listFuzzyFunctions_numberPoints.at(type);
+    }
+
+    void generateGraph(const QVector<float> rangeVariable)
+    {
+        float startX = rangeVariable[0];
+        float endX   = rangeVariable[1];
+
+        int size;
+
+        if(startX < 0)
+            size = ( fabs(startX) + fabs(endX) ) * 10;
+        else
+            size = (endX - startX) * 10;
+
+        size += 1;
+
+        QVector<double> x(size), y(size);
+
+        for (int i=0; i<size; i++)
+        {
+            x[i] = startX + 0.1*i;
+            y[i] = 0.0;
+
+            // for triangle
+            if( type == 0 && \
+            ( range[0] <= x[i] && x[i] <= range[2] ) )
+            {
+                float D1 = fabs(range[0]-range[1]);
+                float D2 = fabs(range[1]-range[2]);
+                if(x[i] <= range[1]) {
+                    y[i] = fabs(range[0]-x[i])/D1;
+                } else {
+                    y[i] = 1-fabs(range[1]-x[i])/D2;
+                }
+            }
+            // for trapeze
+            else if(type == 1 && \
+            ( range[0] <= x[i] && x[i] <= range[3] ) )
+            {
+                float D1 = fabs(range[0]-range[1]);
+                float D2 = fabs(range[2]-range[3]);
+                if(x[i] <= range[1]) {
+                    y[i] = fabs(range[0]-x[i])/D1;
+                }
+                else if(x[i] > range[1] && x[i] <= range[2]) {
+                    y[i] = 1.0;
+                }
+                else {
+                    y[i] = 1-fabs(range[2]-x[i])/D2;
+                }
+            }
+        }
+
+        graph.clear();
+        graph.push_back(x);
+        graph.push_back(y);
+    }
+
+public:
+    QVector<QVector<double>> graph;
+    QVector<float> range;
     QString name;
     int type;
+
+    FuzzyFunction & operator = (const FuzzyFunction & other)
+    {
+        (*this).graph = other.graph;
+        (*this).range = other.range;
+        (*this).name  = other.name;
+        (*this).type  = other.type;
+
+        return *this;
+    }
+
 };
 
 class FuzzyVariable : protected FuzzyFunction
 {
 protected:
-    QStringList nameInference = {"Sugeno", "Mandani"};
+    const QStringList nameInference = {"Sugeno", "Mandani"};
 
 public:
     QList<FuzzyFunction> fuzzyFunctions;
     QString name;
-    QString range = "[0 0]";
+    QVector<float> range = { -30, 30 };
+    QVector<double> pointsX, pointsY;
+
 };
 
-//class FuzzyUI;
+class FuzzyRule
+{
+protected:
+
+public:
+    QList<QString> fuzzyRules;
+};
 
 class Fuzzy : protected FuzzyVariable
 {
-    friend class FuzzyConfigUI;
+    friend class FunctionWindow;
 
 protected:
-    QStringList controlFuzzy = { "Fuzzy-P", "Fuzzy-PI", "Fuzzy-PD", "Fuzzy-PID" };
-  //  QVector<FuzzyVariable> fuzzyInput[3];
-    FuzzyVariable inputP, inputI, inputD, output;
-
-public:
-    Fuzzy();
-};
-
-class FuzzyControl
-{
-
+    const QStringList listControl = { "Fuzzy-P", "Fuzzy-PI", "Fuzzy-PD", "Fuzzy-PID" };
+    FuzzyVariable inputP, inputI, inputD;
+    QList<FuzzyVariable> input;
+    FuzzyVariable output;
 
 public:
 
