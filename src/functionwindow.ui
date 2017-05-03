@@ -194,7 +194,7 @@
    </property>
    <layout class="QGridLayout" name="gridLayout_6"/>
   </widget>
-  <widget class="QGroupBox" name="groupBox_3">
+  <widget class="QGroupBox" name="gb_io">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -333,7 +333,7 @@
   <zorder>groupBox_5</zorder>
   <zorder>groupBox</zorder>
   <zorder>funcionPlot</zorder>
-  <zorder>groupBox_3</zorder>
+  <zorder>gb_io</zorder>
   <zorder>groupBox_2</zorder>
   <zorder>groupBox_4</zorder>
  </widget>

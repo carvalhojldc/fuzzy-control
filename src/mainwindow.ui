@@ -174,269 +174,227 @@
                   <attribute name="title">
                    <string>Fuzzy</string>
                   </attribute>
-                  <widget class="QFrame" name="frame">
-                   <property name="geometry">
-                    <rect>
-                     <x>160</x>
-                     <y>10</y>
-                     <width>179</width>
-                     <height>44</height>
-                    </rect>
-                   </property>
-                   <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
-                   </property>
-                   <property name="frameShadow">
-                    <enum>QFrame::Raised</enum>
-                   </property>
-                   <layout class="QGridLayout" name="gridLayout_20">
-                    <item row="0" column="0">
-                     <widget class="QRadioButton" name="rb_mandani">
-                      <property name="text">
-                       <string>Mamdani</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <widget class="QRadioButton" name="rb_sugeno">
-                      <property name="text">
-                       <string>Sugeno</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                  <widget class="QGroupBox" name="gb_signal">
-                   <property name="geometry">
-                    <rect>
-                     <x>9</x>
-                     <y>131</y>
-                     <width>308</width>
-                     <height>230</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>230</height>
-                    </size>
-                   </property>
-                   <property name="layoutDirection">
-                    <enum>Qt::LeftToRight</enum>
-                   </property>
-                   <property name="title">
-                    <string>Parâmentros</string>
-                   </property>
-                   <layout class="QGridLayout" name="gridLayout_3">
-                    <item row="0" column="0">
-                     <widget class="QFrame" name="fm_signal">
-                      <property name="frameShape">
-                       <enum>QFrame::StyledPanel</enum>
-                      </property>
-                      <layout class="QGridLayout" name="gridLayout_2">
-                       <item row="0" column="0">
-                        <widget class="QLabel" name="labelTipoSinal">
-                         <property name="layoutDirection">
-                          <enum>Qt::RightToLeft</enum>
-                         </property>
-                         <property name="text">
-                          <string>Tipo:</string>
-                         </property>
-                         <property name="alignment">
-                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="1">
-                        <widget class="QComboBox" name="cb_typesSigns">
-                         <property name="minimumSize">
-                          <size>
-                           <width>130</width>
-                           <height>0</height>
-                          </size>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                    <item row="1" column="0">
-                     <widget class="QFrame" name="fm_signalConf">
-                      <property name="frameShape">
-                       <enum>QFrame::StyledPanel</enum>
-                      </property>
-                      <layout class="QHBoxLayout" name="horizontalLayout_5">
-                       <item>
-                        <layout class="QVBoxLayout" name="verticalLayout_11">
-                         <item>
-                          <widget class="QLabel" name="labelAmp">
+                  <layout class="QGridLayout" name="gridLayout_22">
+                   <item row="0" column="0">
+                    <widget class="QGroupBox" name="groupBox_3">
+                     <property name="title">
+                      <string>Controlador Fuzzy</string>
+                     </property>
+                     <layout class="QGridLayout" name="gridLayout_25">
+                      <item row="0" column="0">
+                       <layout class="QGridLayout" name="gridLayout_20">
+                        <item row="0" column="0">
+                         <widget class="QGroupBox" name="groupBox_4">
+                          <property name="title">
+                           <string>Controle</string>
+                          </property>
+                          <layout class="QGridLayout" name="gridLayout_21">
+                           <item row="0" column="0">
+                            <widget class="QComboBox" name="cb_controlFuzzy"/>
+                           </item>
+                          </layout>
+                         </widget>
+                        </item>
+                        <item row="0" column="1">
+                         <widget class="QGroupBox" name="groupBox_5">
+                          <property name="title">
+                           <string>Modo</string>
+                          </property>
+                          <layout class="QGridLayout" name="gridLayout_23">
+                           <item row="0" column="0">
+                            <widget class="QRadioButton" name="rb_mandani">
+                             <property name="text">
+                              <string>Mamdani</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="0">
+                            <widget class="QRadioButton" name="rb_sugeno">
+                             <property name="text">
+                              <string>Sugeno</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item row="1" column="0">
+                       <layout class="QGridLayout" name="gridLayout_24">
+                        <item row="0" column="0">
+                         <widget class="QPushButton" name="pb_configFuzzyFunction">
+                          <property name="text">
+                           <string>Configurar funções</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="0" column="1">
+                         <widget class="QPushButton" name="pb_configFuzzyRules">
+                          <property name="text">
+                           <string>Configurar regras</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QGroupBox" name="gb_signal">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>230</height>
+                      </size>
+                     </property>
+                     <property name="layoutDirection">
+                      <enum>Qt::LeftToRight</enum>
+                     </property>
+                     <property name="title">
+                      <string>Sinal de Envio</string>
+                     </property>
+                     <layout class="QGridLayout" name="gridLayout_3">
+                      <item row="0" column="0">
+                       <widget class="QFrame" name="fm_signal">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <layout class="QGridLayout" name="gridLayout_2">
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="labelTipoSinal">
                            <property name="layoutDirection">
-                            <enum>Qt::LeftToRight</enum>
+                            <enum>Qt::RightToLeft</enum>
                            </property>
                            <property name="text">
-                            <string>Amplitude</string>
+                            <string>Tipo:</string>
                            </property>
                            <property name="alignment">
-                            <set>Qt::AlignCenter</set>
+                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                            </property>
                           </widget>
                          </item>
-                         <item>
-                          <widget class="QLabel" name="labelOffSet">
-                           <property name="layoutDirection">
-                            <enum>Qt::LeftToRight</enum>
-                           </property>
-                           <property name="text">
-                            <string>Off-set</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QLabel" name="labelPeriodo">
-                           <property name="layoutDirection">
-                            <enum>Qt::LeftToRight</enum>
-                           </property>
-                           <property name="text">
-                            <string>Período</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QLabel" name="labelAux">
-                           <property name="layoutDirection">
-                            <enum>Qt::LeftToRight</enum>
-                           </property>
-                           <property name="text">
-                            <string/>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
+                         <item row="0" column="1">
+                          <widget class="QComboBox" name="cb_typesSigns">
+                           <property name="minimumSize">
+                            <size>
+                             <width>130</width>
+                             <height>0</height>
+                            </size>
                            </property>
                           </widget>
                          </item>
                         </layout>
-                       </item>
-                       <item>
-                        <layout class="QVBoxLayout" name="verticalLayout_10">
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QFrame" name="fm_signalConf">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_5">
                          <item>
-                          <widget class="QDoubleSpinBox" name="dSpinAmp">
-                           <property name="singleStep">
-                            <double>0.500000000000000</double>
-                           </property>
-                          </widget>
+                          <layout class="QVBoxLayout" name="verticalLayout_11">
+                           <item>
+                            <widget class="QLabel" name="labelAmp">
+                             <property name="layoutDirection">
+                              <enum>Qt::LeftToRight</enum>
+                             </property>
+                             <property name="text">
+                              <string>Amplitude</string>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignCenter</set>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QLabel" name="labelOffSet">
+                             <property name="layoutDirection">
+                              <enum>Qt::LeftToRight</enum>
+                             </property>
+                             <property name="text">
+                              <string>Off-set</string>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignCenter</set>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QLabel" name="labelPeriodo">
+                             <property name="layoutDirection">
+                              <enum>Qt::LeftToRight</enum>
+                             </property>
+                             <property name="text">
+                              <string>Período</string>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignCenter</set>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QLabel" name="labelAux">
+                             <property name="layoutDirection">
+                              <enum>Qt::LeftToRight</enum>
+                             </property>
+                             <property name="text">
+                              <string/>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignCenter</set>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
                          </item>
                          <item>
-                          <widget class="QDoubleSpinBox" name="dSpinOffSet">
-                           <property name="singleStep">
-                            <double>0.500000000000000</double>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QDoubleSpinBox" name="dSpinPeriodo">
-                           <property name="singleStep">
-                            <double>0.500000000000000</double>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QDoubleSpinBox" name="dSpinAux">
-                           <property name="singleStep">
-                            <double>0.500000000000000</double>
-                           </property>
-                          </widget>
+                          <layout class="QVBoxLayout" name="verticalLayout_10">
+                           <item>
+                            <widget class="QDoubleSpinBox" name="dSpinAmp">
+                             <property name="singleStep">
+                              <double>0.500000000000000</double>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QDoubleSpinBox" name="dSpinOffSet">
+                             <property name="singleStep">
+                              <double>0.500000000000000</double>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QDoubleSpinBox" name="dSpinPeriodo">
+                             <property name="singleStep">
+                              <double>0.500000000000000</double>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QDoubleSpinBox" name="dSpinAux">
+                             <property name="singleStep">
+                              <double>0.500000000000000</double>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
                          </item>
                         </layout>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                  <widget class="QLabel" name="label">
-                   <property name="geometry">
-                    <rect>
-                     <x>12</x>
-                     <y>12</y>
-                     <width>36</width>
-                     <height>18</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Modo</string>
-                   </property>
-                  </widget>
-                  <widget class="QComboBox" name="cb_Variabel">
-                   <property name="geometry">
-                    <rect>
-                     <x>54</x>
-                     <y>12</y>
-                     <width>79</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                  </widget>
-                  <widget class="QPushButton" name="pb_configFuzzyFunction">
-                   <property name="geometry">
-                    <rect>
-                     <x>30</x>
-                     <y>110</y>
-                     <width>123</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Configurar funções</string>
-                   </property>
-                  </widget>
-                  <widget class="QPushButton" name="pb_configFuzzyRules">
-                   <property name="geometry">
-                    <rect>
-                     <x>160</x>
-                     <y>110</y>
-                     <width>114</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Configurar regras</string>
-                   </property>
-                  </widget>
-                  <widget class="QGroupBox" name="groupBox_4">
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>40</y>
-                     <width>151</width>
-                     <height>61</height>
-                    </rect>
-                   </property>
-                   <property name="title">
-                    <string>Controle</string>
-                   </property>
-                   <widget class="QComboBox" name="cb_controlFuzzy">
-                    <property name="geometry">
-                     <rect>
-                      <x>10</x>
-                      <y>30</y>
-                      <width>131</width>
-                      <height>20</height>
-                     </rect>
-                    </property>
-                   </widget>
-                  </widget>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                  <widget class="QWidget" name="tabChannel">
                   <attribute name="title">

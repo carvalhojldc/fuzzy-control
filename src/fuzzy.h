@@ -77,16 +77,19 @@ public:
         graph.clear();
         graph.push_back(x);
         graph.push_back(y);
+        graphColor =  QColor(rand()%200+10, rand()%200+10, rand()%200+10, 255);
     }
 
 public:
     QVector<QVector<double>> graph;
+    QColor graphColor;
     QVector<float> range;
     QString name;
     int type;
 
     FuzzyFunction & operator = (const FuzzyFunction & other)
     {
+        (*this).graphColor = other.graphColor;
         (*this).graph = other.graph;
         (*this).range = other.range;
         (*this).name  = other.name;

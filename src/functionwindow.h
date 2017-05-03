@@ -4,8 +4,9 @@
 #include "qcustomplot.h"
 #include <QDialog>
 #include <QMessageBox>
-
+#include <QList>
 #include "fuzzy.h"
+
 
 #include <QDebug>
 
@@ -21,25 +22,32 @@ public:
     explicit FunctionWindow(Fuzzy &fuzzy, QWidget *parent = 0);
     ~FunctionWindow();
 
+private:
+    void configGraph(void);
+    void clearGraph(int & id);
+    void clearAllGraphs();
+    void addGraph(const FuzzyFunction *function, const int &id);
+
+    FuzzyVariable * getIO(void);
+
+    bool ioError(void);
+
+    void updateCurrentData(void);
+
 private slots:
-    //void controlInput(int id);
-    void currentInput();
-
-    FuzzyVariable * getIO();
-
-    void updateCurrentData(FuzzyVariable * io);
-
-    void insertIORange(void);
+    void graphLegendClick(QCPLegend *l, QCPAbstractLegendItem *ai, QMouseEvent *me);
+    void changeCurrentIO(void);
+    void changeIORange(void);
 
     void insertFunction(void);
     void deleteFunction(void);
     void editFunction(void);
 
-    void plotterLegendClick(QCPLegend *l, QCPAbstractLegendItem *ai, QMouseEvent *me);
 
 private:
     Ui::FunctionWindow *ui;
     Fuzzy myFuzzy;
+    FuzzyVariable *io;
 };
 
 #endif // FUNCTIONWINDOW_H
