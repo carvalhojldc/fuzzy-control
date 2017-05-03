@@ -31,6 +31,8 @@ public:
 private slots:
     void connectServer();
 
+    void controlInput(int id);
+
     void UI_configGraphWrite();
     void UI_configGraphRead();
     void UI_DisplayGraph();

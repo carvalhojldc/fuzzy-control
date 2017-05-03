@@ -1,16 +1,12 @@
 #include "functionwindow.h"
 #include "ui_functionwindow.h"
 
-FunctionWindow::FunctionWindow(QWidget *parent) :
+FunctionWindow::FunctionWindow(Fuzzy &fuzzy, QWidget *parent) :
     QDialog(parent),
+    myFuzzy(fuzzy),
     ui(new Ui::FunctionWindow)
 {
     ui->setupUi(this);
-
-    //connect(ui->cb_controlFuzzy, SIGNAL(currentIndexChanged(int)), this, SLOT(controlInput(int)));
-
-    for(int i=0; i<myFuzzy.listControl.size(); i++)
-        ui->cb_controlFuzzy->addItem(myFuzzy.listControl.at(i), QVariant(i));
 
     connect(ui->rb_inputP, SIGNAL(clicked(bool)), this, SLOT(currentInput()));
     connect(ui->rb_inputI, SIGNAL(clicked(bool)), this, SLOT(currentInput()));
@@ -43,7 +39,8 @@ FunctionWindow::FunctionWindow(QWidget *parent) :
     ui->funcionPlot->yAxis->setRange(0,1);
 
     //Usuário arraste eixo varia com o mouse, zoom com a roda do mouse e selecione gráficos clicando:
-    ui->funcionPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables );
+    //ui->funcionPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables );
+    ui->funcionPlot->setInteractions(QCP::iSelectPlottables );
     //ui->funcionPlot->axisRect(0)->setRangeDrag(Qt::Vertical);
     //ui->funcionPlot->axisRect(0)->setRangeZoom(Qt::Vertical);
 
@@ -56,13 +53,17 @@ FunctionWindow::FunctionWindow(QWidget *parent) :
 
     ui->funcionPlot->replot();
     // end graph
+
+    ui->rb_inputP->setVisible(myFuzzy.statusInputP);
+    ui->rb_inputI->setVisible(myFuzzy.statusInputI);
+    ui->rb_inputD->setVisible(myFuzzy.statusInputD);
 }
 
 FunctionWindow::~FunctionWindow()
 {
     delete ui;
 }
-
+/*
 void FunctionWindow::controlInput(int id)
 {
     if(id == 0) { // fuzzy p
@@ -86,7 +87,7 @@ void FunctionWindow::controlInput(int id)
         ui->rb_inputD->setHidden(false);
     }
 }
-
+*/
 void FunctionWindow::currentInput() {
     FuzzyVariable *io;
 

@@ -106,8 +106,7 @@ public:
     QList<FuzzyFunction> fuzzyFunctions;
     QString name;
     QVector<float> range = { -30, 30 };
-    QVector<double> pointsX, pointsY;
-
+    //QVector<double> pointsX, pointsY;
 };
 
 class FuzzyRule
@@ -121,14 +120,18 @@ public:
 class Fuzzy : protected FuzzyVariable
 {
     friend class FunctionWindow;
+    friend class MainWindow;
 
 protected:
     const QStringList listControl = { "Fuzzy-P", "Fuzzy-PI", "Fuzzy-PD", "Fuzzy-PID" };
+
+private:
     FuzzyVariable inputP, inputI, inputD;
-    QList<FuzzyVariable> input;
+    bool statusInputP, statusInputI, statusInputD;
     FuzzyVariable output;
 
 public:
+    Fuzzy();
 
 };
 

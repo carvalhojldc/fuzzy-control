@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>839</width>
-    <height>555</height>
+    <width>1002</width>
+    <height>506</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QGroupBox" name="groupBox_4">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>440</y>
+     <x>350</x>
+     <y>530</y>
      <width>191</width>
      <height>81</height>
     </rect>
@@ -39,17 +39,44 @@
   <widget class="QGroupBox" name="groupBox_5">
    <property name="geometry">
     <rect>
-     <x>403</x>
-     <y>10</y>
-     <width>208</width>
-     <height>161</height>
+     <x>750</x>
+     <y>310</y>
+     <width>241</width>
+     <height>171</height>
     </rect>
    </property>
    <property name="title">
     <string>Função corrente</string>
    </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="1" colspan="2">
+   <layout class="QGridLayout" name="gridLayout_5">
+    <item row="2" column="0">
+     <widget class="QPushButton" name="pb_editFunction">
+      <property name="text">
+       <string>Editar</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" colspan="2">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Função corrente</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QComboBox" name="cb_currentFuzzyFunction"/>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="1">
      <widget class="QPushButton" name="pb_deleteFunction">
       <property name="text">
        <string>Apagar</string>
@@ -57,35 +84,31 @@
      </widget>
     </item>
     <item row="1" column="0">
-     <widget class="QPushButton" name="pb_editFunction">
-      <property name="text">
-       <string>Editar</string>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
       </property>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QComboBox" name="cb_currentFuzzyFunction"/>
-    </item>
-    <item row="0" column="0" colspan="2">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Função corrente</string>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
       </property>
-     </widget>
+     </spacer>
     </item>
    </layout>
   </widget>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>616</x>
-     <y>10</y>
-     <width>211</width>
-     <height>161</height>
+     <x>450</x>
+     <y>300</y>
+     <width>291</width>
+     <height>181</height>
     </rect>
    </property>
    <property name="title">
-    <string>Configurar função</string>
+    <string>Configuração de funções</string>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
@@ -98,7 +121,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Nome</string>
+       <string>Variável lingúistica</string>
       </property>
      </widget>
     </item>
@@ -132,7 +155,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Intervalo</string>
+       <string>Pontos no exino x</string>
       </property>
      </widget>
     </item>
@@ -152,9 +175,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>183</y>
-     <width>821</width>
-     <height>250</height>
+     <y>30</y>
+     <width>981</width>
+     <height>271</height>
     </rect>
    </property>
    <property name="minimumSize">
@@ -174,10 +197,10 @@
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>169</width>
-     <height>161</height>
+     <x>0</x>
+     <y>300</y>
+     <width>210</width>
+     <height>181</height>
     </rect>
    </property>
    <property name="minimumSize">
@@ -223,11 +246,17 @@
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>185</x>
-     <y>10</y>
-     <width>211</width>
-     <height>161</height>
+     <x>220</x>
+     <y>300</y>
+     <width>221</width>
+     <height>181</height>
     </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>210</width>
+     <height>170</height>
+    </size>
    </property>
    <property name="title">
     <string>Variável corrente</string>
@@ -301,7 +330,11 @@
     </item>
    </layout>
   </widget>
-  <zorder>layoutWidget</zorder>
+  <zorder>groupBox_5</zorder>
+  <zorder>groupBox</zorder>
+  <zorder>funcionPlot</zorder>
+  <zorder>groupBox_3</zorder>
+  <zorder>groupBox_2</zorder>
   <zorder>groupBox_4</zorder>
  </widget>
  <customwidgets>

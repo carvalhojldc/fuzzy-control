@@ -13,8 +13,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // end UI_connection
 
-    ui_rw = new RuleWindow();
-    ui_fw = new FunctionWindow();
+    myFuzzy.statusInputD = true;
+
+    ui_rw = new RuleWindow(myFuzzy);
+    ui_fw = new FunctionWindow(myFuzzy);
 
     ui->setupUi(this);
 
@@ -60,6 +62,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->pb_configFuzzyFunction, SIGNAL(clicked(bool)), this, SLOT(UI_functionWindow()));
     connect(ui->pb_configFuzzyRules, SIGNAL(clicked(bool)), this, SLOT(UI_ruleWindow()));
+
+    connect(ui->cb_controlFuzzy, SIGNAL(currentIndexChanged(int)), this, SLOT(controlInput(int)));
+
+    for(int i=0; i<myFuzzy.listControl.size(); i++)
+        ui->cb_controlFuzzy->addItem(myFuzzy.listControl.at(i), QVariant(i));
+
+    ui->dSpinOffSet->setEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -98,8 +107,39 @@ void MainWindow::connectServer()
         QMessageBox::critical(this,tr("Control Quanser - Conexão Falhou!"),
                               tr("Verifique o IP e/ou porta do servidor!"));
         connection->show();
+
+
+
+
     }
 }
+
+void MainWindow::controlInput(int id)
+{
+    if(id == 0) { // fuzzy p
+        myFuzzy.statusInputP = true;
+        myFuzzy.statusInputI = false;
+        myFuzzy.statusInputD = false;
+    }
+    else if(id == 1) { // fuzzy pi
+        myFuzzy.statusInputP = true;
+        myFuzzy.statusInputI = true;
+        myFuzzy.statusInputD = false;;
+    }
+    else if(id == 2) { // fuzzy pd
+        myFuzzy.statusInputP = true;
+        myFuzzy.statusInputI = false;
+        myFuzzy.statusInputD = true;
+    }
+    else if(id == 3) { // fuzzy pid
+        myFuzzy.statusInputP = true;
+        myFuzzy.statusInputI = true;
+        myFuzzy.statusInputD = true;
+    }
+
+    qDebug() << myFuzzy.statusInputP << myFuzzy.statusInputI << myFuzzy.statusInputD;
+}
+
 
 void MainWindow::UI_configGraphWrite()
 {
@@ -204,6 +244,10 @@ void MainWindow::sendData()
 */
 void MainWindow::UI_functionWindow()
 {
+    if(ui_fw != nullptr) delete ui_fw;
+
+    ui_fw = new FunctionWindow(myFuzzy);
+
     ui_fw->show();
 }
 

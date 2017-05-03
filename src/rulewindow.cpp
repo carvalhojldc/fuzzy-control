@@ -1,8 +1,9 @@
 #include "rulewindow.h"
 #include "ui_rulewindow.h"
 
-RuleWindow::RuleWindow(QWidget *parent) :
+RuleWindow::RuleWindow(Fuzzy &fuzzy, QWidget *parent) :
     QDialog(parent),
+    myFuzzy(fuzzy),
     ui(new Ui::RuleWindow)
 {
     ui->setupUi(this);
