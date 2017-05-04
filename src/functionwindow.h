@@ -19,7 +19,7 @@ class FunctionWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit FunctionWindow(Fuzzy &fuzzy, QWidget *parent = 0);
+    explicit FunctionWindow(Fuzzy * fuzzy, QWidget *parent = 0);
     ~FunctionWindow();
 
 private:
@@ -46,7 +46,7 @@ private slots:
 
 private:
     Ui::FunctionWindow *ui;
-    Fuzzy myFuzzy;
+    Fuzzy *myFuzzy;
     FuzzyVariable *io;
 };
 

@@ -168,7 +168,7 @@
                   </size>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>1</number>
                  </property>
                  <widget class="QWidget" name="tabFuzzy">
                   <attribute name="title">
@@ -185,31 +185,50 @@
                        <layout class="QGridLayout" name="gridLayout_20">
                         <item row="0" column="0">
                          <widget class="QGroupBox" name="groupBox_4">
+                          <property name="layoutDirection">
+                           <enum>Qt::RightToLeft</enum>
+                          </property>
                           <property name="title">
                            <string>Controle</string>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_21">
                            <item row="0" column="0">
-                            <widget class="QComboBox" name="cb_controlFuzzy"/>
+                            <widget class="QComboBox" name="cb_controlFuzzy">
+                             <property name="layoutDirection">
+                              <enum>Qt::LeftToRight</enum>
+                             </property>
+                            </widget>
                            </item>
                           </layout>
                          </widget>
                         </item>
                         <item row="0" column="1">
                          <widget class="QGroupBox" name="groupBox_5">
+                          <property name="layoutDirection">
+                           <enum>Qt::RightToLeft</enum>
+                          </property>
                           <property name="title">
                            <string>Modo</string>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_23">
                            <item row="0" column="0">
                             <widget class="QRadioButton" name="rb_mandani">
+                             <property name="layoutDirection">
+                              <enum>Qt::RightToLeft</enum>
+                             </property>
                              <property name="text">
                               <string>Mamdani</string>
+                             </property>
+                             <property name="checked">
+                              <bool>true</bool>
                              </property>
                             </widget>
                            </item>
                            <item row="1" column="0">
                             <widget class="QRadioButton" name="rb_sugeno">
+                             <property name="layoutDirection">
+                              <enum>Qt::RightToLeft</enum>
+                             </property>
                              <property name="text">
                               <string>Sugeno</string>
                              </property>
@@ -311,7 +330,7 @@
                               <string>Amplitude</string>
                              </property>
                              <property name="alignment">
-                              <set>Qt::AlignCenter</set>
+                              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                              </property>
                             </widget>
                            </item>
@@ -324,7 +343,7 @@
                               <string>Off-set</string>
                              </property>
                              <property name="alignment">
-                              <set>Qt::AlignCenter</set>
+                              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                              </property>
                             </widget>
                            </item>
@@ -337,7 +356,7 @@
                               <string>Período</string>
                              </property>
                              <property name="alignment">
-                              <set>Qt::AlignCenter</set>
+                              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                              </property>
                             </widget>
                            </item>
@@ -347,10 +366,10 @@
                               <enum>Qt::LeftToRight</enum>
                              </property>
                              <property name="text">
-                              <string/>
+                              <string>Período máximo</string>
                              </property>
                              <property name="alignment">
-                              <set>Qt::AlignCenter</set>
+                              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                              </property>
                             </widget>
                            </item>
@@ -360,6 +379,9 @@
                           <layout class="QVBoxLayout" name="verticalLayout_10">
                            <item>
                             <widget class="QDoubleSpinBox" name="dSpinAmp">
+                             <property name="layoutDirection">
+                              <enum>Qt::LeftToRight</enum>
+                             </property>
                              <property name="singleStep">
                               <double>0.500000000000000</double>
                              </property>

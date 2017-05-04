@@ -12,11 +12,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(connection, SIGNAL(accepted()), this, SLOT(connectServer()));
 
     // end UI_connection
+    // --------------
+
+    ui_rw = nullptr;
+    ui_fw = nullptr;
 
     myFuzzy.statusInputD = true;
-
-    ui_rw = new RuleWindow(myFuzzy);
-    ui_fw = new FunctionWindow(myFuzzy);
 
     ui->setupUi(this);
 
@@ -36,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timerGraph->moveToThread(threadFuzzyControl);
     connect(timerGraph, SIGNAL(timeout()), this, SLOT(myGraph()));
     // end threads
+    // --------------
 
     // Enable_graphs
     connect(ui->cb_channelRead0, SIGNAL(toggled(bool)), ui->cb_showChannel0, SLOT(setEnabled(bool)));
@@ -48,27 +50,44 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->cb_showError,      SIGNAL(toggled(bool)), this, SLOT(UI_DisplayGraph()));
     connect(ui->cb_showSetPoint,   SIGNAL(toggled(bool)), this, SLOT(UI_DisplayGraph()));
 
+    connect(ui->cb_typesSigns, SIGNAL(currentIndexChanged(int)), this, SLOT(UI_configSignal(int)));
+
     // end Enable_graphs
+    // --------------
 
-    // config
+    // config_ui
 
+    // list of signs of write
     for(int i=0; i<typesSigns.size(); i++)
         ui->cb_typesSigns->addItem(typesSigns.at(i), QVariant(i));
 
+    // list of channels
     for(int i=0; i<4; i++)
         ui->cb_WriteChannel->addItem("Canal " + QString::number(i), QVariant(i));
 
-    // end config
+    // list of control fuzzy
+    for(int i=0; i<myFuzzy.listControl.size(); i++)
+        ui->cb_controlFuzzy->addItem(myFuzzy.listControl.at(i), QVariant(i));
+
+    ui->dSpinOffSet->setEnabled(false);
+    ui->dSpinAux->setVisible(false);
+    ui->dSpinAux->setVisible(false);
+
+    // end config_ui
+    // --------------
+
+    connect(ui->dSpinAmp,       SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
+    connect(ui->dSpinPeriodo,   SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
+    connect(ui->dSpinOffSet,    SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
+    connect(ui->dSpinAux,       SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
+
 
     connect(ui->pb_configFuzzyFunction, SIGNAL(clicked(bool)), this, SLOT(UI_functionWindow()));
     connect(ui->pb_configFuzzyRules, SIGNAL(clicked(bool)), this, SLOT(UI_ruleWindow()));
 
     connect(ui->cb_controlFuzzy, SIGNAL(currentIndexChanged(int)), this, SLOT(controlInput(int)));
 
-    for(int i=0; i<myFuzzy.listControl.size(); i++)
-        ui->cb_controlFuzzy->addItem(myFuzzy.listControl.at(i), QVariant(i));
-
-    ui->dSpinOffSet->setEnabled(false);
+    controlInput(0);
 }
 
 MainWindow::~MainWindow()
@@ -79,16 +98,17 @@ MainWindow::~MainWindow()
     threadGraph->quit();
     threadGraph->wait();
 
-    delete connection;
-    delete ui_rw;
-    delete ui_fw;
-    delete ui;
+    if(connection != nullptr) delete connection;
+
+    if(ui_rw != nullptr) delete ui_rw;
+
+    if(ui_fw != nullptr) delete ui_fw;
+
+    if(ui != nullptr) delete ui;
 }
 
 void MainWindow::connectServer()
 {
-    //fuzzyControl = new FuzzyControl();
-
     if(connection->getSatus())
     {
         this->show();
@@ -107,39 +127,8 @@ void MainWindow::connectServer()
         QMessageBox::critical(this,tr("Control Quanser - Conexão Falhou!"),
                               tr("Verifique o IP e/ou porta do servidor!"));
         connection->show();
-
-
-
-
     }
 }
-
-void MainWindow::controlInput(int id)
-{
-    if(id == 0) { // fuzzy p
-        myFuzzy.statusInputP = true;
-        myFuzzy.statusInputI = false;
-        myFuzzy.statusInputD = false;
-    }
-    else if(id == 1) { // fuzzy pi
-        myFuzzy.statusInputP = true;
-        myFuzzy.statusInputI = true;
-        myFuzzy.statusInputD = false;;
-    }
-    else if(id == 2) { // fuzzy pd
-        myFuzzy.statusInputP = true;
-        myFuzzy.statusInputI = false;
-        myFuzzy.statusInputD = true;
-    }
-    else if(id == 3) { // fuzzy pid
-        myFuzzy.statusInputP = true;
-        myFuzzy.statusInputI = true;
-        myFuzzy.statusInputD = true;
-    }
-
-    qDebug() << myFuzzy.statusInputP << myFuzzy.statusInputI << myFuzzy.statusInputD;
-}
-
 
 void MainWindow::UI_configGraphWrite()
 {
@@ -184,7 +173,7 @@ void MainWindow::UI_configGraphRead()
     }
 
     ui->graphRead->xAxis->setLabel("Tempo (s)");
-    ui->graphRead->yAxis->setRange(0,30);
+    ui->graphRead->yAxis->setRange(-1,31);
     ui->graphRead->yAxis->setNumberPrecision(2);
     ui->graphRead->yAxis->setLabel("Nível (cm) ");
     ui->graphRead->xAxis->setSubTickCount(10);
@@ -228,42 +217,90 @@ void MainWindow::UI_DisplayGraph()
     }
 
 }
-/*
-void MainWindow::receiveData()
-{
-    if(ui->cb_channelRead0->isChecked());
-    if(ui->cb_channelRead1->isChecked());
-}
 
-void MainWindow::sendData()
-{
-    int channel = ui->cb_typesSigns->currentIndex();
-    connection->sendSignal(channel, 4);
-
-}
-*/
 void MainWindow::UI_functionWindow()
 {
     if(ui_fw != nullptr) delete ui_fw;
 
-    ui_fw = new FunctionWindow(myFuzzy);
+    ui_fw = new FunctionWindow(&myFuzzy);
+
 
     ui_fw->show();
 }
 
 void MainWindow::UI_ruleWindow()
 {
+   if(ui_rw != nullptr) delete ui_rw;
 
+    ui_rw = new RuleWindow(&myFuzzy);
+
+    ui_rw->show();
+}
+
+void MainWindow::controlInput(int id)
+{
+    if(id == 0) { // fuzzy p
+        myFuzzy.statusInputP = true;
+        myFuzzy.statusInputI = false;
+        myFuzzy.statusInputD = false;
+    }
+    else if(id == 1) { // fuzzy pi
+        myFuzzy.statusInputP = true;
+        myFuzzy.statusInputI = true;
+        myFuzzy.statusInputD = false;;
+    }
+    else if(id == 2) { // fuzzy pd
+        myFuzzy.statusInputP = true;
+        myFuzzy.statusInputI = false;
+        myFuzzy.statusInputD = true;
+    }
+    else if(id == 3) { // fuzzy pid
+        myFuzzy.statusInputP = true;
+        myFuzzy.statusInputI = true;
+        myFuzzy.statusInputD = true;
+    }
 }
 
 void MainWindow::myFuzzyControl()
 {
-    static int i = 0;
-    //qDebug() << "fuzzyControl " << i++;
+
 }
 
 void MainWindow::myGraph()
 {
-    static int i = 0;
-    //qDebug() << "graph" << i++;
+
+}
+
+void MainWindow::UI_limitRandInput()
+{
+    ui->dSpinOffSet->setMaximum(ui->dSpinAmp->value());
+    ui->dSpinAux->setMaximum(ui->dSpinPeriodo->value());
+    ui->dSpinAmp->setMinimum(ui->dSpinOffSet->value());
+    ui->dSpinPeriodo->setMinimum(ui->dSpinAux->value());
+}
+
+void MainWindow::UI_configSignal(int signal)
+{
+    ui->labelOffSet->setEnabled(true);
+    ui->labelPeriodo->setEnabled(true);
+    ui->dSpinOffSet->setEnabled(true);
+    ui->dSpinPeriodo->setEnabled(true);
+    ui->dSpinAux->setVisible(false);
+    ui->labelAux->setVisible(false);
+
+    if(signal == 0) // signal deg
+    {
+        ui->labelOffSet->setEnabled(false);
+        ui->labelPeriodo->setEnabled(false);
+        ui->dSpinOffSet->setEnabled(false);
+        ui->dSpinPeriodo->setEnabled(false);
+    }
+    else if(signal == 4) // signal rand
+    {
+        ui->dSpinAux->setVisible(true);
+        ui->labelAux->setVisible(true);
+
+        ui->dSpinOffSet->setMaximum(ui->dSpinAmp->value());
+        ui->dSpinAux->setMaximum(ui->dSpinPeriodo->value());
+    }
 }

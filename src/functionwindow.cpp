@@ -1,19 +1,29 @@
 #include "functionwindow.h"
 #include "ui_functionwindow.h"
 
-FunctionWindow::FunctionWindow(Fuzzy &fuzzy, QWidget *parent) :
+FunctionWindow::FunctionWindow(Fuzzy *fuzzy, QWidget *parent) :
     QDialog(parent),
-    myFuzzy(fuzzy),
     ui(new Ui::FunctionWindow)
 {
+    myFuzzy = fuzzy;
+
     ui->setupUi(this);
 
     io = nullptr;
 
-    ui->rb_inputP->setVisible(myFuzzy.statusInputP);
-    ui->rb_inputI->setVisible(myFuzzy.statusInputI);
-    ui->rb_inputD->setVisible(myFuzzy.statusInputD);
+    ui->rb_inputP->setVisible(myFuzzy->statusInputP);
+    ui->rb_inputI->setVisible(myFuzzy->statusInputI);
+    ui->rb_inputD->setVisible(myFuzzy->statusInputD);
     ui->rb_output->setVisible(true);
+
+    ui->rb_inputP->setText( myFuzzy->inputP.name );
+    ui->rb_inputI->setText( myFuzzy->inputI.name );
+    ui->rb_inputD->setText( myFuzzy->inputD.name );
+    ui->rb_output->setText( myFuzzy->output.name );
+
+    // ---------------
+
+    configGraph();
 
     connect(ui->rb_inputP, SIGNAL(clicked(bool)), this, SLOT(changeCurrentIO()));
     connect(ui->rb_inputI, SIGNAL(clicked(bool)), this, SLOT(changeCurrentIO()));
@@ -26,10 +36,11 @@ FunctionWindow::FunctionWindow(Fuzzy &fuzzy, QWidget *parent) :
     connect(ui->pb_editFunction,   SIGNAL(clicked(bool)), this, SLOT(editFunction())   );
     connect(ui->pb_deleteFunction, SIGNAL(clicked(bool)), this, SLOT(deleteFunction()) );
 
-    for(int i=0; i<myFuzzy.listFuzzyFunctions.size(); i++)
-        ui->cb_InsertFunctionType->addItem(myFuzzy.listFuzzyFunctions.at(i), QVariant(i));
+    for(int i=0; i<myFuzzy->listFuzzyFunctions.size(); i++)
+        ui->cb_InsertFunctionType->addItem(myFuzzy->listFuzzyFunctions.at(i), QVariant(i));
 
-    configGraph();
+
+    //ui->rb_inputP->setChecked(true);
 }
 
 FunctionWindow::~FunctionWindow()
@@ -114,10 +125,10 @@ bool FunctionWindow::ioError(void)
 
 FuzzyVariable * FunctionWindow::getIO(void)
 {
-    if( ui->rb_inputP->isChecked() ) return &myFuzzy.inputP;
-    else if( ui->rb_inputI->isChecked() ) return &myFuzzy.inputI;
-    else if( ui->rb_inputD->isChecked() ) return &myFuzzy.inputD;
-    else if( ui->rb_output->isChecked() ) return &myFuzzy.output;
+    if( ui->rb_inputP->isChecked() ) return &myFuzzy->inputP;
+    else if( ui->rb_inputI->isChecked() ) return &myFuzzy->inputI;
+    else if( ui->rb_inputD->isChecked() ) return &myFuzzy->inputD;
+    else if( ui->rb_output->isChecked() ) return &myFuzzy->output;
     else return nullptr;
 }
 
@@ -173,7 +184,6 @@ void FunctionWindow::changeCurrentIO(void)
 
     if(ioError()) return;
 
-    ui->lb_fuzzyVari->setText( io->name );
     ui->le_fuzzyRange->setText( QString::number(io->range.at(0)) + " " + \
                                 QString::number(io->range.at(1)) );
 

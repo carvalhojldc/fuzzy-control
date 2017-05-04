@@ -123,6 +123,7 @@ public:
 class Fuzzy : protected FuzzyVariable
 {
     friend class FunctionWindow;
+    friend class RuleWindow;
     friend class MainWindow;
 
 protected:

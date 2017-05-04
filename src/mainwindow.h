@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QThread>
 #include <QStringList>
+
 #include "qcustomplot.h"
 
 #include "functionwindow.h"
@@ -31,18 +32,21 @@ public:
 private slots:
     void connectServer();
 
-    void controlInput(int id);
-
     void UI_configGraphWrite();
     void UI_configGraphRead();
+
     void UI_DisplayGraph();
 
     void UI_functionWindow();
     void UI_ruleWindow();
 
+    void controlInput(int id);
+
     void myFuzzyControl();
     void myGraph();
 
+    void UI_limitRandInput();
+    void UI_configSignal(int signal);
 
 private:
     Ui::MainWindow *ui;
