@@ -221,7 +221,7 @@
              </font>
             </property>
             <property name="text">
-             <string>Variável lingúistica</string>
+             <string>Nome da função</string>
             </property>
            </widget>
           </item>
@@ -255,7 +255,7 @@
              </font>
             </property>
             <property name="text">
-             <string>Pontos no exino x</string>
+             <string>Pontos no exino X</string>
             </property>
            </widget>
           </item>
@@ -324,6 +324,21 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>pb_editFunction</tabstop>
+  <tabstop>pb_insertFunction</tabstop>
+  <tabstop>le_fuzzyRange</tabstop>
+  <tabstop>pb_fuzzyIO</tabstop>
+  <tabstop>rb_inputD</tabstop>
+  <tabstop>rb_inputP</tabstop>
+  <tabstop>rb_output</tabstop>
+  <tabstop>le_InsertFunctionName</tabstop>
+  <tabstop>cb_currentFuzzyFunction</tabstop>
+  <tabstop>le_InsertRangeFunction</tabstop>
+  <tabstop>cb_InsertFunctionType</tabstop>
+  <tabstop>pb_deleteFunction</tabstop>
+  <tabstop>rb_inputI</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

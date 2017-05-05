@@ -8,4 +8,5 @@ Fuzzy::Fuzzy()
     output.name = "Saída";
 
     statusInputP = statusInputI = statusInputD = false;
+    statusOutput = true;
 }

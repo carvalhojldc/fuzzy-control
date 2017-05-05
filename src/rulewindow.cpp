@@ -52,8 +52,22 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
     connect(ui->insertRule, SIGNAL(clicked(bool)), this, SLOT(insertRule()));
     connect(ui->removeRule, SIGNAL(clicked(bool)), this, SLOT(removeRule()));
 
+    connect(ui->tableWidget, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(currentRule(QTableWidgetItem*)));
+
     //ui->listWidget->setStyleSheet( "QListWidget::item { border-bottom: 1px solid black; }" );
-    ui->listWidget->setProperty("separator", true);
+    //ui->listWidget->setProperty("separator", true);
+
+    //ui->removeRule->setDisabled(true);
+    //ui->label_currentRule->setText("Nenhuma regra selecionada");
+    //ui->label_numberRules->setText("0");
+
+    QStringList HorizontalHeaderLabels = {"REGRAS"};
+    ui->tableWidget->setColumnCount(1);
+    ui->tableWidget->setHorizontalHeaderLabels(HorizontalHeaderLabels);
+    ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget->setColumnWidth(0, 680);
+
 }
 
 RuleWindow::~RuleWindow()
@@ -73,26 +87,76 @@ void RuleWindow::insertRule()
         return;
     }
 
-    int idNewRule = ui->listWidget->size().height();
+    int idNewRule;
     QString rule = "";
 
-    if(myFuzzy->statusInputP)
+    QList<FuzzyRule> newRules;
+    FuzzyRule temp;
+
+    if(myFuzzy->statusInputP) {
         rule = "SE [ " + myFuzzy->inputP.name + " É " + ui->comboBox_1->currentText() + " ] ";
 
-    if(myFuzzy->statusInputI)
+        temp.io = &myFuzzy->inputP;
+        temp.idFunction = ui->comboBox_1->currentIndex();
+        newRules.push_back( temp );
+    }
+
+    if(myFuzzy->statusInputI) {
         rule += (" E [ " + myFuzzy->inputI.name + " É " + ui->comboBox_2->currentText() + " ] " );
 
-    if(myFuzzy->statusInputD)
+        temp.io = &myFuzzy->inputI;
+        temp.idFunction = ui->comboBox_2->currentIndex();
+        newRules.push_back( temp );
+    }
+
+    if(myFuzzy->statusInputD) {
         rule += (" E [ " + myFuzzy->inputD.name + " É " + ui->comboBox_3->currentText() + " ] " );
+
+        temp.io = &myFuzzy->inputD;
+        temp.idFunction = ui->comboBox_3->currentIndex();
+        newRules.push_back( temp );
+    }
 
     // output
     rule += " ENTÃO [ " + myFuzzy->output.name + " É " + ui->comboBox_4->currentText() + " ] ";
 
-    ui->listWidget->insertItem(idNewRule, rule);
+    temp.io = &myFuzzy->output;
+    temp.idFunction = ui->comboBox_4->currentIndex();
+    newRules.push_back( temp );
+
+    // --
+
+    myFuzzy->rules.push_back(newRules);
+
+    idNewRule = ui->tableWidget->rowCount();
+    ui->tableWidget->setRowCount( idNewRule + 1 );
+    ui->tableWidget->setItem(idNewRule, 0, new QTableWidgetItem( rule ));
+
+    ui->label_numberRules->setText( QString::number(idNewRule+1) );
+
+    if(!ui->removeRule->isEnabled())
+        ui->removeRule->setEnabled(true);
 }
 
 void RuleWindow::removeRule()
 {
-    int currentId = ui->listWidget->currentIndex().row();
-    ui->listWidget->model()->removeRow( currentId );
+    int id = ui->tableWidget->currentRow();
+
+    ui->tableWidget->removeRow( id );
+    myFuzzy->rules.removeAt(id);
+
+    int numberRules = ui->label_numberRules->text().toInt()-1;
+
+    ui->label_numberRules->setText( QString::number( numberRules ) );
+
+    if(numberRules == 0) {
+        ui->label_currentRule->setText("Nenhuma regra selecionada");
+        ui->removeRule->setEnabled(false);
+    }
+}
+
+
+void RuleWindow::currentRule(QTableWidgetItem* item)
+{
+    ui->label_currentRule->setText( item->text() );
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>715</width>
-    <height>440</height>
+    <width>718</width>
+    <height>490</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,21 +18,21 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>700</width>
-    <height>270</height>
+    <width>718</width>
+    <height>490</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>718</width>
-    <height>440</height>
+    <height>490</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>Regras do Controlador Fuzzy</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_10">
-   <item row="0" column="0" colspan="2">
+  <layout class="QGridLayout" name="gridLayout_14">
+   <item row="0" column="0">
     <widget class="QFrame" name="frame_2">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -60,16 +60,29 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
       <item row="0" column="0">
-       <widget class="QListWidget" name="listWidget">
-        <property name="dragEnabled">
-         <bool>true</bool>
+       <widget class="QTableWidget" name="tableWidget">
+        <property name="minimumSize">
+         <size>
+          <width>680</width>
+          <height>250</height>
+         </size>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>680</width>
+          <height>250</height>
+         </size>
+        </property>
+        <property name="columnCount">
+         <number>1</number>
+        </property>
+        <column/>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
+   <item row="1" column="0">
     <widget class="QFrame" name="frame">
      <property name="minimumSize">
       <size>
@@ -90,17 +103,17 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="1">
-       <widget class="QWidget" name="widget_2" native="true">
-        <layout class="QGridLayout" name="gridLayout_8">
+      <item row="0" column="2">
+       <widget class="QWidget" name="widget_3" native="true">
+        <layout class="QGridLayout" name="gridLayout_11">
          <item row="0" column="0">
-          <layout class="QGridLayout" name="gl_i2">
+          <layout class="QGridLayout" name="gl_i3">
            <item row="0" column="1">
-            <layout class="QGridLayout" name="gridLayout_3">
+            <layout class="QGridLayout" name="gridLayout">
              <item row="0" column="0">
-              <widget class="QLabel" name="label_2">
+              <widget class="QLabel" name="label_3">
                <property name="text">
-                <string>Entrada2</string>
+                <string>Entrada 3</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -108,12 +121,12 @@
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QComboBox" name="comboBox_2"/>
+              <widget class="QComboBox" name="comboBox_3"/>
              </item>
             </layout>
            </item>
            <item row="0" column="0">
-            <widget class="QLabel" name="label_5">
+            <widget class="QLabel" name="label_7">
              <property name="text">
               <string>E</string>
              </property>
@@ -126,38 +139,6 @@
          </item>
         </layout>
        </widget>
-      </item>
-      <item row="0" column="5">
-       <widget class="QPushButton" name="insertRule">
-        <property name="minimumSize">
-         <size>
-          <width>110</width>
-          <height>50</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>110</width>
-          <height>50</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Adicionar regra</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item row="0" column="0">
        <widget class="QWidget" name="widget" native="true">
@@ -199,17 +180,49 @@
         </layout>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QWidget" name="widget_3" native="true">
-        <layout class="QGridLayout" name="gridLayout_11">
+      <item row="0" column="5">
+       <widget class="QPushButton" name="insertRule">
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>110</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Adicionar regra</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="1">
+       <widget class="QWidget" name="widget_2" native="true">
+        <layout class="QGridLayout" name="gridLayout_8">
          <item row="0" column="0">
-          <layout class="QGridLayout" name="gl_i3">
+          <layout class="QGridLayout" name="gl_i2">
            <item row="0" column="1">
-            <layout class="QGridLayout" name="gridLayout">
+            <layout class="QGridLayout" name="gridLayout_3">
              <item row="0" column="0">
-              <widget class="QLabel" name="label_3">
+              <widget class="QLabel" name="label_2">
                <property name="text">
-                <string>Entrada 3</string>
+                <string>Entrada2</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -217,12 +230,12 @@
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QComboBox" name="comboBox_3"/>
+              <widget class="QComboBox" name="comboBox_2"/>
              </item>
             </layout>
            </item>
            <item row="0" column="0">
-            <widget class="QLabel" name="label_7">
+            <widget class="QLabel" name="label_5">
              <property name="text">
               <string>E</string>
              </property>
@@ -277,36 +290,99 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <spacer name="horizontalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>578</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="removeRule">
-     <property name="minimumSize">
-      <size>
-       <width>110</width>
-       <height>35</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>110</width>
-       <height>35</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Deletar regra</string>
-     </property>
-    </widget>
+    <layout class="QGridLayout" name="gridLayout_13">
+     <item row="0" column="0">
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Regra selecionada</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_12">
+        <item row="0" column="1">
+         <widget class="QPushButton" name="removeRule">
+          <property name="minimumSize">
+           <size>
+            <width>110</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>110</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Deletar regra</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_currentRule">
+          <property name="text">
+           <string>Nenhuma regra selecionada</string>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::AutoText</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QFrame" name="frame_3">
+       <property name="minimumSize">
+        <size>
+         <width>180</width>
+         <height>80</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>180</width>
+         <height>80</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_10">
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_numberRules">
+          <property name="text">
+           <string>0</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_nrt">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Número de regras: </string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

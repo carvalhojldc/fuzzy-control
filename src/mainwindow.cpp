@@ -87,6 +87,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->cb_controlFuzzy, SIGNAL(currentIndexChanged(int)), this, SLOT(controlInput(int)));
 
+    connect(ui->buttonAtualizar, SIGNAL(clicked(bool)), this, SLOT(updateData()));
+
     controlInput(0);
 }
 
@@ -303,4 +305,18 @@ void MainWindow::UI_configSignal(int signal)
         ui->dSpinOffSet->setMaximum(ui->dSpinAmp->value());
         ui->dSpinAux->setMaximum(ui->dSpinPeriodo->value());
     }
+}
+
+void MainWindow::updateData()
+{
+    double signal = ui->cb_typesSigns->currentIndex();
+    double setPoint = ui->dSpinAmp->value();
+    double offSet = ui->dSpinOffSet->value();
+    double period = ui->dSpinPeriodo->value();
+
+    if(ui->cb_typesSigns->currentText() == typesSigns.at(4))
+        double  periodMax = ui->dSpinAux->value();
+
+    int channelWrite = ui->cb_WriteChannel->currentIndex();
+
 }

@@ -48,6 +48,8 @@ private slots:
     void UI_limitRandInput();
     void UI_configSignal(int signal);
 
+    void updateData();
+
 private:
     Ui::MainWindow *ui;
     FunctionWindow *ui_fw;

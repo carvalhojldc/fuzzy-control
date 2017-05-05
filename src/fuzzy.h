@@ -4,10 +4,9 @@
 #include <QStringList>
 #include <QList>
 #include <QVector>
-
 #include <QtMath>
+#include <QColor>
 
-#include <QMessageBox>
 class FuzzyFunction
 {
 protected:
@@ -112,12 +111,18 @@ public:
     //QVector<double> pointsX, pointsY;
 };
 
+class Rule
+{
+public:
+    FuzzyVariable *io;
+    int idFunction;
+};
+
 class FuzzyRule
 {
-protected:
-
 public:
-    QList<QString> fuzzyRules;
+    FuzzyVariable *io;
+    int idFunction;
 };
 
 class Fuzzy : protected FuzzyVariable
@@ -130,9 +135,9 @@ protected:
     const QStringList listControl = { "Fuzzy-P", "Fuzzy-PI", "Fuzzy-PD", "Fuzzy-PID" };
 
 private:
-    FuzzyVariable inputP, inputI, inputD;
-    bool statusInputP, statusInputI, statusInputD;
-    FuzzyVariable output;
+    bool statusInputP, statusInputI, statusInputD, statusOutput;
+    FuzzyVariable inputP, inputI, inputD, output;
+    QList<QList<FuzzyRule>> rules;
 
 public:
     Fuzzy();

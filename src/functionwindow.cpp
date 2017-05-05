@@ -38,9 +38,6 @@ FunctionWindow::FunctionWindow(Fuzzy *fuzzy, QWidget *parent) :
 
     for(int i=0; i<myFuzzy->listFuzzyFunctions.size(); i++)
         ui->cb_InsertFunctionType->addItem(myFuzzy->listFuzzyFunctions.at(i), QVariant(i));
-
-
-    //ui->rb_inputP->setChecked(true);
 }
 
 FunctionWindow::~FunctionWindow()
@@ -183,6 +180,8 @@ void FunctionWindow::changeCurrentIO(void)
     io = getIO();
 
     if(ioError()) return;
+
+    ui->funcionPlot->xAxis->setRange(io->range.at(0),io->range.at(1));
 
     ui->le_fuzzyRange->setText( QString::number(io->range.at(0)) + " " + \
                                 QString::number(io->range.at(1)) );

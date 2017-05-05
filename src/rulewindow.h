@@ -4,6 +4,7 @@
 #include <QDialog>
 #include "fuzzy.h"
 #include <QMessageBox>
+#include <QTableWidgetItem>
 
 namespace Ui {
 class RuleWindow;
@@ -20,6 +21,7 @@ public:
 private slots:
     void insertRule();
     void removeRule();
+    void currentRule(QTableWidgetItem *item);
 
 private:
     Ui::RuleWindow *ui;
