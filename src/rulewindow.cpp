@@ -120,6 +120,18 @@ void RuleWindow::insertRule()
     // output
     rule += " ENTÃO [ " + myFuzzy->output.name + " É " + ui->comboBox_4->currentText() + " ] ";
 
+    for(int r=0; r<ui->tableWidget->rowCount(); r++)
+    {
+        QString row = ui->tableWidget->item(r,0)->text();
+
+        if(row == rule)
+        {
+            QMessageBox::critical(0, "Adicionar regra",
+                              "A regra escolhida já foi inserida, insira outra diferente de:\n" + rule);
+            return;
+        }
+    }
+
     temp.io = &myFuzzy->output;
     temp.idFunction = ui->comboBox_4->currentIndex();
     newRules.push_back( temp );
@@ -149,14 +161,13 @@ void RuleWindow::removeRule()
 
     ui->label_numberRules->setText( QString::number( numberRules ) );
 
-    if(numberRules == 0) {
-        ui->label_currentRule->setText("Nenhuma regra selecionada");
-        ui->removeRule->setEnabled(false);
-    }
+    ui->label_currentRule->setText("Nenhuma regra selecionada");
+    ui->removeRule->setEnabled(false);
 }
 
 
 void RuleWindow::currentRule(QTableWidgetItem* item)
 {
+    ui->removeRule->setEnabled(true);
     ui->label_currentRule->setText( item->text() );
 }

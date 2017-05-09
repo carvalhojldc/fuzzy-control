@@ -3,10 +3,12 @@
 Fuzzy::Fuzzy()
 {
     inputP.name = "Erro";
-    inputI.name = "Erro acumulado";
-    inputD.name = "Derivada do erro";
+    inputI.name = "Der. do Erro";
+    inputD.name = "Der. Seg. do Erro";
     output.name = "Saída";
 
     statusInputP = statusInputI = statusInputD = false;
     statusOutput = true;
+
+    sugenoStatus = mamdaniStatus = false;
 }

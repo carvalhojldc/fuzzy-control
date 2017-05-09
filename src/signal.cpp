@@ -1,5 +1,4 @@
 #include "signal.h"
-#include <cstdlib>
 
 Signal::Signal()
 {

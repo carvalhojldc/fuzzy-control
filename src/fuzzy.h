@@ -138,6 +138,7 @@ private:
     bool statusInputP, statusInputI, statusInputD, statusOutput;
     FuzzyVariable inputP, inputI, inputD, output;
     QList<QList<FuzzyRule>> rules;
+    bool sugenoStatus, mamdaniStatus;
 
 public:
     Fuzzy();

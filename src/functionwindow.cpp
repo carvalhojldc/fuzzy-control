@@ -38,6 +38,7 @@ FunctionWindow::FunctionWindow(Fuzzy *fuzzy, QWidget *parent) :
 
     for(int i=0; i<myFuzzy->listFuzzyFunctions.size(); i++)
         ui->cb_InsertFunctionType->addItem(myFuzzy->listFuzzyFunctions.at(i), QVariant(i));
+
 }
 
 FunctionWindow::~FunctionWindow()
@@ -244,73 +245,82 @@ void FunctionWindow::insertFunction(void)
         QMessageBox::critical(0, titleWindow, "Nome inválido!");
     else if(ui->le_InsertRangeFunction->text().isEmpty())
         QMessageBox::critical(0, titleWindow, "Intervalo inválido!");
-    else {
-        // before adding new function
-        graphId = io->fuzzyFunctions.size();
-
-        newFunction.name  = ui->le_InsertFunctionName->text();
-
-        // validate name
-        for(int i=0; i<io->fuzzyFunctions.size(); i++)
-            if( newFunction.name  == io->fuzzyFunctions.at(i).name )
-            {
-                QMessageBox::critical(0, titleWindow,
-                    "Nome já utilizado, tente outro!");
-                return;
-            }
-
-        newFunction.type = ui->cb_InsertFunctionType->currentIndex();
-
-        // split string of range
-        points = ( ui->le_InsertRangeFunction->text() ).split(QRegExp("\\s+"), \
-                                                            QString::SkipEmptyParts);
-
-        // add new range
-        newFunction.range.clear();
-        for(int i=0; i<points.size(); i++)
-            newFunction.range.push_back( points.at(i).toFloat() );
-
-        // validade range (number of points)
+    else
+    {
+        if(myFuzzy->mamdaniStatus)
         {
-            QString message = "Intervalo inválido, insira " + \
-                QString::number(newFunction.getNumberPoints()) + \
-                " pontos do eixo x [" + QString::number(io->range[0]) +\
-                ", " + QString::number(io->range[1]) + "]!";
+            // before adding new function
+            graphId = io->fuzzyFunctions.size();
 
-            // validate interval
-            if( points.size() != newFunction.getNumberPoints() ||
-                newFunction.range.at(0) < io->range[0] ||
-                newFunction.range.at(newFunction.range.size()-1) > io->range[1] )
-            {
-                QMessageBox::critical(0, titleWindow, message);
-                return;
-            }
+            newFunction.name  = ui->le_InsertFunctionName->text();
 
-            // validate order
-            for(int i=1; i<newFunction.range.size(); i++)
-                if( newFunction.range.at(i-1) > newFunction.range.at(i) )
+            // validate name
+            for(int i=0; i<io->fuzzyFunctions.size(); i++)
+                if( newFunction.name  == io->fuzzyFunctions.at(i).name )
                 {
-                    QMessageBox::critical(0, titleWindow, "Ondem do intervalo é inválida!");
+                    QMessageBox::critical(0, titleWindow,
+                        "Nome já utilizado, tente outro!");
                     return;
                 }
+
+            newFunction.type = ui->cb_InsertFunctionType->currentIndex();
+
+            // split string of range
+            points = ( ui->le_InsertRangeFunction->text() ).split(QRegExp("\\s+"), \
+                                                                QString::SkipEmptyParts);
+
+            // add new range
+            newFunction.range.clear();
+            for(int i=0; i<points.size(); i++)
+                newFunction.range.push_back( points.at(i).toFloat() );
+
+            // validade range (number of points)
+            {
+                QString message = "Intervalo inválido, insira " + \
+                    QString::number(newFunction.getNumberPoints()) + \
+                    " pontos do eixo x [" + QString::number(io->range[0]) +\
+                    ", " + QString::number(io->range[1]) + "]!";
+
+                // validate interval
+                if( points.size() != newFunction.getNumberPoints() ||
+                    newFunction.range.at(0) < io->range[0] ||
+                    newFunction.range.at(newFunction.range.size()-1) > io->range[1] )
+                {
+                    QMessageBox::critical(0, titleWindow, message);
+                    return;
+                }
+
+                // validate order
+                for(int i=1; i<newFunction.range.size(); i++)
+                    if( newFunction.range.at(i-1) > newFunction.range.at(i) )
+                    {
+                        QMessageBox::critical(0, titleWindow, "Ondem do intervalo é inválida!");
+                        return;
+                    }
+            }
+
+            // end of all validation
+            // ----------------
+
+            newFunction.generateGraph( (*io).range );
+
+
+            addGraph(&newFunction, graphId);
+
+            // clear current data
+            ui->le_InsertFunctionName->clear();
+            ui->le_InsertRangeFunction->clear();
+            ui->cb_InsertFunctionType->setCurrentIndex(0);
+
+            // add new function of validation
+            io->fuzzyFunctions.push_back(newFunction);
+
+            updateCurrentData();
         }
+        else if(myFuzzy->sugenoStatus)
+        {
 
-        // end of all validation
-        // ----------------
-
-        newFunction.generateGraph( (*io).range );
-
-        addGraph(&newFunction, graphId);
-
-        // clear current data
-        ui->le_InsertFunctionName->clear();
-        ui->le_InsertRangeFunction->clear();
-        ui->cb_InsertFunctionType->setCurrentIndex(0);
-
-        // add new function of validation
-        io->fuzzyFunctions.push_back(newFunction);
-
-        updateCurrentData();
+        }
     }
 }
 

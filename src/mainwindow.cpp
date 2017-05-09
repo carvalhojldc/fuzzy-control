@@ -73,6 +73,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->dSpinAux->setVisible(false);
     ui->dSpinAux->setVisible(false);
 
+    ui->buttonAtualizar->setStyleSheet("background-color: green");
+    ui->buttonStop->setStyleSheet("background-color: red");
+
     // end config_ui
     // --------------
 
@@ -81,6 +84,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->dSpinOffSet,    SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
     connect(ui->dSpinAux,       SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
 
+    connect(ui->rb_mandani, SIGNAL(toggled(bool)), this, SLOT(MandSugStatus()));
+    connect(ui->rb_sugeno, SIGNAL(toggled(bool)), this, SLOT(MandSugStatus()));
 
     connect(ui->pb_configFuzzyFunction, SIGNAL(clicked(bool)), this, SLOT(UI_functionWindow()));
     connect(ui->pb_configFuzzyRules, SIGNAL(clicked(bool)), this, SLOT(UI_ruleWindow()));
@@ -90,6 +95,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->buttonAtualizar, SIGNAL(clicked(bool)), this, SLOT(updateData()));
 
     controlInput(0);
+
+    ui->rb_mandani->setChecked(true);
+    ui->rb_sugeno->setChecked(false);
+    MandSugStatus();
+
+
 }
 
 MainWindow::~MainWindow()
@@ -157,6 +168,8 @@ void MainWindow::UI_configGraphWrite()
     ui->graphWrite->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables );
     ui->graphWrite->axisRect(0)->setRangeDrag(Qt::Vertical);
     ui->graphWrite->axisRect(0)->setRangeZoom(Qt::Vertical);
+
+    ui->graphWrite->replot();
 }
 
 void MainWindow::UI_configGraphRead()
@@ -183,6 +196,8 @@ void MainWindow::UI_configGraphRead()
     ui->graphRead->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables );
     ui->graphRead->axisRect(0)->setRangeDrag(Qt::Vertical);
     ui->graphRead->axisRect(0)->setRangeZoom(Qt::Vertical);
+
+    ui->graphRead->replot();
 }
 
 void MainWindow::UI_DisplayGraph()
@@ -226,7 +241,6 @@ void MainWindow::UI_functionWindow()
 
     ui_fw = new FunctionWindow(&myFuzzy);
 
-
     ui_fw->show();
 }
 
@@ -263,14 +277,96 @@ void MainWindow::controlInput(int id)
     }
 }
 
+double MainWindow::carrierSignal(double voltage)
+{
+    if(timeAux > period) timeAux = 0;
+
+    if(signalID == 0)
+        return signal.degrau(voltage, offSet);
+    else if(signalID == 1)
+        return signal.seno(voltage, timeAux, period, offSet);
+    else if(signalID == 2)
+        return signal.quadrada(voltage, timeAux, period, offSet);
+    else if(signalID == 3)
+        return  signal.serra(voltage, timeAux, period, offSet);
+    else if(signalID == 4) {
+        double ampMax = setPoint;
+        double ampMin = offSet;
+        double durMax = period;
+        double durMin = periodMax;
+
+        if(timeAux==0) {
+            period = signal.periodoAleatorio(durMax, durMin);
+            return signal.aleatorio(ampMax, ampMin);
+        }
+    }
+
+    timeAux += 0.1;
+}
+
 void MainWindow::myFuzzyControl()
 {
+    if(readLeavel1)
+        tankLevel_1 = connection->getSignal(0);
+    else tankLevel_1 = 0;
 
+    if(readLeavel2)
+        tankLevel_2 = connection->getSignal(1);
+    else tankLevel_2 = 0;
+
+    //fuzzySignal = fuzzyControl.getSignal();
+
+    if( ! stopWrite )
+    {
+        calculatedSignal = carrierSignal(fuzzySignal);
+
+        // travel
+        {
+            if(calculatedSignal > 4)
+                sendSignal = 4;
+            else if(calculatedSignal < -4)
+                sendSignal = -4;
+            else
+                sendSignal = calculatedSignal;
+
+            if(tankLevel_1<=3 && sendSignal<0) sendSignal = 0;
+
+            if(tankLevel_1>=28 && sendSignal>0) sendSignal = 0;
+        }
+
+        error = setPoint-tankLevel_2;
+    }
+    else
+        calculatedSignal = sendSignal = error = 0;
+
+    // write signal
+    connection->sendSignal(channelWrite, sendSignal);
 }
 
 void MainWindow::myGraph()
 {
+    static double timeWrite = 0;
 
+    // write data
+    ui->graphWrite->graph(0)->addData(timeWrite, sendSignal);
+    ui->graphWrite->graph(1)->addData(timeWrite, calculatedSignal);
+    ui->graphWrite->graph(0)->removeData(timeWrite-120);
+    ui->graphWrite->graph(1)->removeData(timeWrite-120);
+    // ---
+
+    // read data
+    ui->graphRead->graph(0)->addData(timeWrite, error);
+    ui->graphRead->graph(1)->addData(timeWrite, setPoint);
+    ui->graphRead->graph(2)->addData(timeWrite, tankLevel_1);
+    ui->graphRead->graph(3)->addData(timeWrite, tankLevel_2);
+    // ---
+
+    ui->graphWrite->xAxis->setRange(timeWrite, 60, Qt::AlignRight);
+    ui->graphRead->xAxis->setRange(timeWrite, 60, Qt::AlignRight);
+
+    timeWrite += 0.1;
+    ui->graphWrite->replot();
+    ui->graphRead->replot();
 }
 
 void MainWindow::UI_limitRandInput()
@@ -309,14 +405,19 @@ void MainWindow::UI_configSignal(int signal)
 
 void MainWindow::updateData()
 {
-    double signal = ui->cb_typesSigns->currentIndex();
-    double setPoint = ui->dSpinAmp->value();
-    double offSet = ui->dSpinOffSet->value();
-    double period = ui->dSpinPeriodo->value();
+    signalID  = ui->cb_typesSigns->currentIndex();
+    setPoint  = ui->dSpinAmp->value();
+    offSet    = ui->dSpinOffSet->value();
+    period    = ui->dSpinPeriodo->value();
+    periodMax = ui->dSpinAux->value();
 
-    if(ui->cb_typesSigns->currentText() == typesSigns.at(4))
-        double  periodMax = ui->dSpinAux->value();
+    channelWrite = ui->cb_WriteChannel->currentIndex();
+    readLeavel1 = ui->cb_channelRead0->isChecked();
+    readLeavel2 = ui->cb_channelRead1->isChecked();
+}
 
-    int channelWrite = ui->cb_WriteChannel->currentIndex();
-
+void MainWindow::MandSugStatus()
+{
+    myFuzzy.mamdaniStatus = ui->rb_mandani->isCheckable();
+    myFuzzy.sugenoStatus  = ui->rb_sugeno->isChecked();
 }

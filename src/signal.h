@@ -2,6 +2,7 @@
 #define SIGNAL_H
 
 #include <QStringList>
+#include <cstdlib>
 #include <cmath>
 #include <time.h>
 

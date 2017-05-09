@@ -65,9 +65,9 @@ QString Connection::getIpAdress() const
 { return ipAdress; }
 
 double Connection::getSignal(const int channel) const
-{ return quanser->readAD(channel); }
+{ return 0.5;return quanser->readAD(channel); }
 
 int Connection::sendSignal(const int channel, const float signal)
-{ return quanser->writeDA(channel, signal); }
+{ return 1;return quanser->writeDA(channel, signal); }
 
 

@@ -42,6 +42,8 @@ private slots:
 
     void controlInput(int id);
 
+    double carrierSignal(double voltage);
+
     void myFuzzyControl();
     void myGraph();
 
@@ -50,12 +52,15 @@ private slots:
 
     void updateData();
 
+    void MandSugStatus();
 private:
     Ui::MainWindow *ui;
     FunctionWindow *ui_fw;
     RuleWindow *ui_rw;
 
     Connection *connection;
+
+    Signal signal;
 
     Fuzzy myFuzzy;
 
@@ -71,6 +76,26 @@ private:
     const QVector<QString> graphWrite      = {"Sinal Enviado", "Sinal Calculado"};
     const QVector<QString> graphWriteColor = { "blue",         "red" };
 
+    double timeAux;
+    int    signalID;
+    double setPoint;
+    double offSet;
+    double period;
+    double periodMax;
+
+    int channelWrite = -1;
+    bool readLeavel1 = false;
+    bool readLeavel2 = false;
+
+    double calculatedSignal = 0;
+    double sendSignal = 0;
+    double error = 0;
+
+    double tankLevel_1;
+    double tankLevel_2;
+    double fuzzySignal = 0;
+
+    bool stopWrite = false;
 };
 
 #endif // MAINWINDOW_H
