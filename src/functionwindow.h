@@ -36,6 +36,7 @@ private:
 
 private slots:
     void graphLegendClick(QCPLegend *l, QCPAbstractLegendItem *ai, QMouseEvent *me);
+    bool sugenoOUT();
     void changeCurrentIO(void);
     void changeIORange(void);
 

@@ -68,6 +68,38 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setColumnWidth(0, 680);
 
+    // load rules
+    int fuzyRules_size = myFuzzy->rules.size();
+    if(fuzyRules_size != 0) {
+        QList<FuzzyRule> tempListRule;
+        FuzzyRule tempRule;
+        QString rule;
+        // QList<QList<FuzzyRule>> rules;
+
+        for(int i=0; i<fuzyRules_size; i++) {
+            tempListRule = myFuzzy->rules.at(i);
+
+            for(int j=0; j<tempListRule.size(); j++) {
+                if(j == 0)
+                    rule = "SE ";
+                else if(j == tempListRule.size()-1)
+                    rule += " ENTÃO ";
+                else
+                    rule += " E ";
+
+                tempRule = tempListRule.at(j);
+
+                rule += ( " [ " + tempRule.io->name + " É " + \
+                        tempRule.io->fuzzyFunctions.at( (tempRule.idFunction) ).name + " ] " );
+            }
+
+            ui->tableWidget->setRowCount( i+1 );
+            ui->tableWidget->setItem(i, 0, new QTableWidgetItem( rule ));
+        }
+    }
+    ui->label_numberRules->setText( QString::number(fuzyRules_size) );
+    // END load rules
+    //---------------
 }
 
 RuleWindow::~RuleWindow()

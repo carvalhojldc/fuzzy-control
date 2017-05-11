@@ -84,8 +84,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->dSpinOffSet,    SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
     connect(ui->dSpinAux,       SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
 
-    connect(ui->rb_mandani, SIGNAL(toggled(bool)), this, SLOT(MandSugStatus()));
-    connect(ui->rb_sugeno, SIGNAL(toggled(bool)), this, SLOT(MandSugStatus()));
+    connect(ui->rb_mandani, SIGNAL(clicked(bool)), this, SLOT(MandSugStatus()));
+    connect(ui->rb_sugeno,  SIGNAL(clicked(bool)), this, SLOT(MandSugStatus()));
 
     connect(ui->pb_configFuzzyFunction, SIGNAL(clicked(bool)), this, SLOT(UI_functionWindow()));
     connect(ui->pb_configFuzzyRules, SIGNAL(clicked(bool)), this, SLOT(UI_ruleWindow()));
@@ -314,7 +314,7 @@ void MainWindow::myFuzzyControl()
         tankLevel_2 = connection->getSignal(1);
     else tankLevel_2 = 0;
 
-    //fuzzySignal = fuzzyControl.getSignal();
+    fuzzySignal = fuzzyControl.getControl(tankLevel_1, tankLevel_2);
 
     if( ! stopWrite )
     {
@@ -414,10 +414,12 @@ void MainWindow::updateData()
     channelWrite = ui->cb_WriteChannel->currentIndex();
     readLeavel1 = ui->cb_channelRead0->isChecked();
     readLeavel2 = ui->cb_channelRead1->isChecked();
+
+    fuzzyControl.setFuzzy(myFuzzy, setPoint);
 }
 
 void MainWindow::MandSugStatus()
 {
-    myFuzzy.mamdaniStatus = ui->rb_mandani->isCheckable();
+    myFuzzy.mamdaniStatus = ui->rb_mandani->isChecked();
     myFuzzy.sugenoStatus  = ui->rb_sugeno->isChecked();
 }

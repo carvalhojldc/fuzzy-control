@@ -103,19 +103,20 @@ class FuzzyVariable : protected FuzzyFunction
 {
 protected:
     const QStringList nameInference = {"Sugeno", "Mandani"};
+    const QStringList sugenoMode = {"Contante", "Linear"};
 
 public:
     QList<FuzzyFunction> fuzzyFunctions;
     QString name;
     QVector<float> range = { -30, 30 };
     //QVector<double> pointsX, pointsY;
-};
 
-class Rule
-{
-public:
-    FuzzyVariable *io;
-    int idFunction;
+    FuzzyVariable & operator = (const FuzzyVariable & other)
+    {
+        this->fuzzyFunctions = other.fuzzyFunctions;
+        this->name = other.name;
+        this->range = other.range;
+    }
 };
 
 class FuzzyRule
@@ -130,6 +131,7 @@ class Fuzzy : protected FuzzyVariable
     friend class FunctionWindow;
     friend class RuleWindow;
     friend class MainWindow;
+    friend class FuzzyControl;
 
 protected:
     const QStringList listControl = { "Fuzzy-P", "Fuzzy-PI", "Fuzzy-PD", "Fuzzy-PID" };
@@ -142,6 +144,24 @@ private:
 
 public:
     Fuzzy();
+
+    Fuzzy & operator = (const Fuzzy & other)
+    {
+        this->statusInputP = other.statusInputP;
+        this->statusInputI = other.statusInputI;
+        this->statusInputD = other.statusInputD;
+
+        this->inputP = other.inputP;
+        this->inputI = other.inputI;
+        this->inputD = other.inputD;
+
+        this->rules = other.rules;
+
+        this->sugenoStatus  = other.sugenoStatus;
+        this->mamdaniStatus = other.mamdaniStatus;
+
+        return *this;
+    }
 
 };
 

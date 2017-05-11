@@ -36,9 +36,15 @@ FunctionWindow::FunctionWindow(Fuzzy *fuzzy, QWidget *parent) :
     connect(ui->pb_editFunction,   SIGNAL(clicked(bool)), this, SLOT(editFunction())   );
     connect(ui->pb_deleteFunction, SIGNAL(clicked(bool)), this, SLOT(deleteFunction()) );
 
-    for(int i=0; i<myFuzzy->listFuzzyFunctions.size(); i++)
-        ui->cb_InsertFunctionType->addItem(myFuzzy->listFuzzyFunctions.at(i), QVariant(i));
+    //for(int i=0; i<myFuzzy->listFuzzyFunctions.size(); i++)
+      //  ui->cb_InsertFunctionType->addItem(myFuzzy->listFuzzyFunctions.at(i), QVariant(i));
 
+    QStringList HorizontalHeaderLabels = {"Nome", "Tipo", "Valores"};
+    ui->tableWidget->setColumnCount(3);
+    ui->tableWidget->setHorizontalHeaderLabels(HorizontalHeaderLabels);
+    ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget->setHidden(true);
 }
 
 FunctionWindow::~FunctionWindow()
@@ -169,6 +175,11 @@ void FunctionWindow::graphLegendClick(QCPLegend *l, QCPAbstractLegendItem *ai, Q
     }
 }
 
+bool FunctionWindow::sugenoOUT()
+{
+    return ( myFuzzy->sugenoStatus && ui->rb_output->isChecked() );
+}
+
 void FunctionWindow::changeCurrentIO(void)
 {
     // clear ui
@@ -182,18 +193,44 @@ void FunctionWindow::changeCurrentIO(void)
 
     if(ioError()) return;
 
-    ui->funcionPlot->xAxis->setRange(io->range.at(0),io->range.at(1));
+    if( sugenoOUT() ) // variable is Output AND is Sugeno
+    {
+        ui->funcionPlot->setHidden(true);
+        ui->tableWidget->setHidden(false);
 
-    ui->le_fuzzyRange->setText( QString::number(io->range.at(0)) + " " + \
-                                QString::number(io->range.at(1)) );
+        ui->frame->setDisabled(true);
+        ui->le_fuzzyRange->clear();
 
+        ui->cb_InsertFunctionType->clear();
+        for(int i=0; i<myFuzzy->sugenoMode.size(); i++)
+            ui->cb_InsertFunctionType->addItem(myFuzzy->sugenoMode.at(i), QVariant(i));
+
+        ui->lb_x->setText("Valor(es) Sugeno:");
+    }
+    else // variable is Input AND is Sugeno/Mandani
+    {
+        ui->funcionPlot->setHidden(false);
+        ui->tableWidget->setHidden(true);
+        ui->frame->setDisabled(false);
+
+        ui->funcionPlot->xAxis->setRange(io->range.at(0),io->range.at(1));
+
+        ui->le_fuzzyRange->setText( QString::number(io->range.at(0)) + " " + \
+                                    QString::number(io->range.at(1)) );
+
+        ui->cb_InsertFunctionType->clear();
+        for(int i=0; i<myFuzzy->listFuzzyFunctions.size(); i++)
+            ui->cb_InsertFunctionType->addItem(myFuzzy->listFuzzyFunctions.at(i), QVariant(i));
+
+        ui->lb_x->setText("Pontos no exino X");
+    }
 
     FuzzyFunction function;
     for(int i=0; i<io->fuzzyFunctions.size(); i++) {
         function = io->fuzzyFunctions.at(i);
         ui->cb_currentFuzzyFunction->addItem(function.name, QVariant(i));
 
-        addGraph(&function, i);
+        if(!sugenoOUT()) addGraph(&function, i);
     }
 }
 
@@ -236,10 +273,15 @@ void FunctionWindow::insertFunction(void)
 {
     if(ioError()) return;
 
-    QString titleWindow = "Inserir função";
+    QString titleWindow;
     FuzzyFunction newFunction;
     QStringList points;
+    QString stringPoints;
     int graphId;
+    int rowTable;
+
+    int currentIndex = ui->cb_InsertFunctionType->currentIndex();
+    QString currentText = ui->cb_InsertFunctionType->currentText();
 
     if(ui->le_InsertFunctionName->text().isEmpty())
         QMessageBox::critical(0, titleWindow, "Nome inválido!");
@@ -247,32 +289,73 @@ void FunctionWindow::insertFunction(void)
         QMessageBox::critical(0, titleWindow, "Intervalo inválido!");
     else
     {
-        if(myFuzzy->mamdaniStatus)
+        newFunction.name  = ui->le_InsertFunctionName->text();
+        newFunction.type  = currentIndex;
+        stringPoints      = ui->le_InsertRangeFunction->text();
+
+        // validate name
+        for(int i=0; i<io->fuzzyFunctions.size(); i++)
+            if( newFunction.name  == io->fuzzyFunctions.at(i).name ) {
+                QMessageBox::critical(0, "Nome inválido",
+                    "Nome já utilizado, tente outro!");
+                return;
+            }
+
+        // split string of range
+        points = ( stringPoints ).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+
+        // add new range
+        newFunction.range.clear();
+        for(int i=0; i<points.size(); i++)
+            newFunction.range.push_back( points.at(i).toFloat() );
+
+        if( sugenoOUT() )
         {
-            // before adding new function
-            graphId = io->fuzzyFunctions.size();
+            // is Sugeno
+            // ------------------
 
-            newFunction.name  = ui->le_InsertFunctionName->text();
+            titleWindow = "Valores Sugeno";
 
-            // validate name
-            for(int i=0; i<io->fuzzyFunctions.size(); i++)
-                if( newFunction.name  == io->fuzzyFunctions.at(i).name )
-                {
+            int nMultSugeno = 0;
+            if(myFuzzy->statusInputP) nMultSugeno += 1;
+            if(myFuzzy->statusInputI) nMultSugeno += 1;
+            if(myFuzzy->statusInputD) nMultSugeno += 1;
+
+            nMultSugeno += 1;
+
+            // validation
+            if(currentIndex == 0) { // const
+
+                if(points.size() != 1) {
                     QMessageBox::critical(0, titleWindow,
-                        "Nome já utilizado, tente outro!");
+                        "Isira apenas um valor!");
                     return;
                 }
+            } else if(currentIndex == 1) { // linear
+                if(points.size() != nMultSugeno) {
+                    QMessageBox::critical(0, titleWindow,
+                        "Isira " + QString::number(nMultSugeno) + " valores!");
+                    return;
+                }
+            }
+            // END validation
+            // --------------
 
-            newFunction.type = ui->cb_InsertFunctionType->currentIndex();
+            rowTable = ui->tableWidget->rowCount();
+            ui->tableWidget->setRowCount( rowTable + 1 );
+            ui->tableWidget->setItem(rowTable, 0, new QTableWidgetItem( newFunction.name ) );
+            ui->tableWidget->setItem(rowTable, 1, new QTableWidgetItem( currentText ) );
+            ui->tableWidget->setItem(rowTable, 2, new QTableWidgetItem( stringPoints ) );
+        }
+        else
+        {
+            // is Mandani
+            // ------------------
 
-            // split string of range
-            points = ( ui->le_InsertRangeFunction->text() ).split(QRegExp("\\s+"), \
-                                                                QString::SkipEmptyParts);
+            titleWindow = "Inserir função";
 
-            // add new range
-            newFunction.range.clear();
-            for(int i=0; i<points.size(); i++)
-                newFunction.range.push_back( points.at(i).toFloat() );
+            // before adding new function
+            graphId = io->fuzzyFunctions.size();
 
             // validade range (number of points)
             {
@@ -299,28 +382,23 @@ void FunctionWindow::insertFunction(void)
                     }
             }
 
-            // end of all validation
-            // ----------------
+            // END validation
+            // --------------
 
             newFunction.generateGraph( (*io).range );
 
-
             addGraph(&newFunction, graphId);
-
-            // clear current data
-            ui->le_InsertFunctionName->clear();
-            ui->le_InsertRangeFunction->clear();
-            ui->cb_InsertFunctionType->setCurrentIndex(0);
-
-            // add new function of validation
-            io->fuzzyFunctions.push_back(newFunction);
-
-            updateCurrentData();
         }
-        else if(myFuzzy->sugenoStatus)
-        {
 
-        }
+        // clear current data
+        ui->le_InsertFunctionName->clear();
+        ui->le_InsertRangeFunction->clear();
+        //ui->cb_InsertFunctionType->setCurrentIndex(0);
+
+        // add new function of validation
+        io->fuzzyFunctions.push_back(newFunction);
+
+        updateCurrentData();
     }
 }
 
@@ -330,8 +408,15 @@ void FunctionWindow::deleteFunction(void)
 
     io->fuzzyFunctions.removeAt(id);
 
-    ui->funcionPlot->removeGraph(id);
-    ui->funcionPlot->replot();
+    if(sugenoOUT())
+    {
+        ui->tableWidget->removeRow(id);
+    }
+    else
+    {
+        ui->funcionPlot->removeGraph(id);
+        ui->funcionPlot->replot();
+    }
 
     updateCurrentData();
 }

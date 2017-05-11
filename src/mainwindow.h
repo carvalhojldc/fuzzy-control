@@ -8,6 +8,8 @@
 
 #include "qcustomplot.h"
 
+#include "fuzzycontrol.h"
+
 #include "functionwindow.h"
 #include "rulewindow.h"
 
@@ -63,6 +65,8 @@ private:
     Signal signal;
 
     Fuzzy myFuzzy;
+
+    FuzzyControl fuzzyControl;
 
     QTimer *timerFuzzyControl;
     QTimer *timerGraph;
