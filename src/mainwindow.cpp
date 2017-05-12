@@ -129,7 +129,7 @@ void MainWindow::connectServer()
         ui->labelStatus->setText(mensagem);
         ui->labelStatus->setStyleSheet("QLabel { color : green; }");
 
-        threadFuzzyControl->start();
+        //threadFuzzyControl->start();
         threadGraph->start();
 
         UI_configGraphWrite();
@@ -316,6 +316,7 @@ void MainWindow::myFuzzyControl()
 
     fuzzySignal = fuzzyControl.getControl(tankLevel_1, tankLevel_2);
 
+    double sendSignal_temp;
     if( ! stopWrite )
     {
         calculatedSignal = carrierSignal(fuzzySignal);
@@ -323,22 +324,24 @@ void MainWindow::myFuzzyControl()
         // travel
         {
             if(calculatedSignal > 4)
-                sendSignal = 4;
+                sendSignal_temp = 4;
             else if(calculatedSignal < -4)
-                sendSignal = -4;
+                sendSignal_temp = -4;
             else
-                sendSignal = calculatedSignal;
+                sendSignal_temp = calculatedSignal;
+                //sendSignal = calculatedSignal;
 
-            if(tankLevel_1<=3 && sendSignal<0) sendSignal = 0;
+            if(tankLevel_1<=3 && sendSignal_temp<0) sendSignal_temp = 0;
 
-            if(tankLevel_1>=28 && sendSignal>0) sendSignal = 0;
+            if(tankLevel_1>=28 && sendSignal_temp>0) sendSignal_temp = 0;
         }
 
         error = setPoint-tankLevel_2;
     }
     else
-        calculatedSignal = sendSignal = error = 0;
+        calculatedSignal = sendSignal_temp = error = 0;
 
+    sendSignal = 4;
     // write signal
     connection->sendSignal(channelWrite, sendSignal);
 }
@@ -405,6 +408,29 @@ void MainWindow::UI_configSignal(int signal)
 
 void MainWindow::updateData()
 {
+    if((myFuzzy.statusInputP && myFuzzy.inputP.fuzzyFunctions.size() == 0) ||
+       (myFuzzy.statusInputI && myFuzzy.inputI.fuzzyFunctions.size() == 0) ||
+       (myFuzzy.statusInputD && myFuzzy.inputD.fuzzyFunctions.size() == 0) ||
+       ( myFuzzy.output.fuzzyFunctions.size() == 0) )
+    {
+        QMessageBox::warning(0, "Funções", "Defina as funções de todas as entradas e saídas!");
+        return;
+    }
+/*
+    if(myFuzzy.rules.size() == 0)
+    {
+        QMessageBox::warning(0, "Regras", "Defina regras para o Controlador Fuzzy!");
+        return;
+    }
+    */
+
+    qDebug() << "MainWindow::updateData()";
+    qDebug() << "&&&&&&&&&&&&&&&&&&&&&&";
+    if(!threadFuzzyControl->isRunning())
+    {
+        threadFuzzyControl->start();
+    }
+
     signalID  = ui->cb_typesSigns->currentIndex();
     setPoint  = ui->dSpinAmp->value();
     offSet    = ui->dSpinOffSet->value();

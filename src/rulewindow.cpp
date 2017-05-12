@@ -9,6 +9,7 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
 
     ui->setupUi(this);
 
+    // config IO
     if(myFuzzy->statusInputP) {
         FuzzyVariable *var = &myFuzzy->inputP;
         ui->label_1->setText( var->name );
@@ -41,6 +42,8 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
         ui->widget_3->setVisible(true);
     } else
         ui->widget_3->setVisible(false);
+    // END config IO
+    // -------------
 
     FuzzyVariable *var = &myFuzzy->output;
     ui->label_4->setText( var->name );
@@ -54,19 +57,11 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
 
     connect(ui->tableWidget, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(currentRule(QTableWidgetItem*)));
 
-    //ui->listWidget->setStyleSheet( "QListWidget::item { border-bottom: 1px solid black; }" );
-    //ui->listWidget->setProperty("separator", true);
-
-    //ui->removeRule->setDisabled(true);
-    //ui->label_currentRule->setText("Nenhuma regra selecionada");
-    //ui->label_numberRules->setText("0");
-
-    QStringList HorizontalHeaderLabels = {"REGRAS"};
+    // config table
     ui->tableWidget->setColumnCount(1);
-    ui->tableWidget->setHorizontalHeaderLabels(HorizontalHeaderLabels);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->tableWidget->setColumnWidth(0, 680);
+    ui->tableWidget->setMaximumWidth( ui->tableWidget->size().width() );
 
     // load rules
     int fuzyRules_size = myFuzzy->rules.size();
@@ -95,6 +90,7 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
 
             ui->tableWidget->setRowCount( i+1 );
             ui->tableWidget->setItem(i, 0, new QTableWidgetItem( rule ));
+            ui->tableWidget->resizeColumnsToContents();
         }
     }
     ui->label_numberRules->setText( QString::number(fuzyRules_size) );
@@ -175,11 +171,12 @@ void RuleWindow::insertRule()
     idNewRule = ui->tableWidget->rowCount();
     ui->tableWidget->setRowCount( idNewRule + 1 );
     ui->tableWidget->setItem(idNewRule, 0, new QTableWidgetItem( rule ));
+    ui->tableWidget->resizeColumnsToContents();
 
     ui->label_numberRules->setText( QString::number(idNewRule+1) );
 
-    if(!ui->removeRule->isEnabled())
-        ui->removeRule->setEnabled(true);
+    //if(!ui->removeRule->isEnabled())
+        //ui->removeRule->setEnabled(true);
 }
 
 void RuleWindow::removeRule()
@@ -195,11 +192,13 @@ void RuleWindow::removeRule()
 
     ui->label_currentRule->setText("Nenhuma regra selecionada");
     ui->removeRule->setEnabled(false);
+    ui->removeRule->setStyleSheet("background-color: none");
 }
 
 
 void RuleWindow::currentRule(QTableWidgetItem* item)
 {
     ui->removeRule->setEnabled(true);
+    ui->removeRule->setStyleSheet("background-color: red");
     ui->label_currentRule->setText( item->text() );
 }

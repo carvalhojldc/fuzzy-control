@@ -4,6 +4,7 @@
 #include <QDialog>
 
 #include "quanser.h"
+#include "tanque.h"
 
 #define PORT_S 20081
 #define IP_S "10.13.99.69"
@@ -26,7 +27,7 @@ class Connection : public QDialog
 
         int getPort() const;
 
-        double getSignal(const int channel) const;
+        double getSignal(const int channel);
 
         int sendSignal(const int channel, const float signal);
 
@@ -39,6 +40,10 @@ class Connection : public QDialog
         Quanser *quanser;
         QString ipAdress;
         int     port;
+
+        bool simulation;
+
+        Tanque tankSimulation;
 };
 
 #endif // CONNECTION_H

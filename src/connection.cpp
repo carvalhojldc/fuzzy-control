@@ -8,14 +8,15 @@ Connection::Connection(QWidget *parent) :
     ui->setupUi(this);
 
     quanser = nullptr;
+    simulation = false;
 
     ui->lineIpAdress->setInputMask(QString("000.000.000.000"));
     ui->lineIpAdress->setValidator(new QRegExpValidator(QRegExp("[0-255].[0-255].[0-255].[0-255]", Qt::CaseInsensitive), this));
     ui->lineIpAdress->setValidator(new QIntValidator(1, 65535, this));
 
-    connect(ui->spinBoxPort,      SIGNAL(valueChanged(int)),    this, SLOT(setConnection()));
-    connect(ui->lineIpAdress,     SIGNAL(textChanged(QString)), this, SLOT(setConnection()));
-    connect(ui->buttonConnection, SIGNAL(clicked(bool)),        this, SLOT(accept()));
+    //connect(ui->spinBoxPort,      SIGNAL(valueChanged(int)),    this, SLOT(setConnection()));
+    //connect(ui->lineIpAdress,     SIGNAL(textChanged(QString)), this, SLOT(setConnection()));
+    connect(ui->buttonConnection, SIGNAL(clicked(bool)),        this, SLOT(setConnection()));
     connect(ui->buttonCancell,    SIGNAL(clicked(bool)),        this, SLOT(reject()));
 
     ui->buttonCancell->setStyleSheet("background-color: red");
@@ -38,20 +39,31 @@ Connection::~Connection()
 
 void Connection::setConnection()
 {
+    qDebug() << "entrou";
     port     = ui->spinBoxPort->value();
     ipAdress = ui->lineIpAdress->text();
 
-    quanser = new Quanser(ipAdress.toLatin1().data(), port);
-
-    if(quanser->getStatus() == false)
+    simulation = ui->cb_simulation->isChecked();
+    qDebug() << simulation;
+    if(simulation == false)
     {
-        delete quanser;
-        quanser = nullptr;
+        quanser = new Quanser(ipAdress.toLatin1().data(), port);
+
+        if(quanser->getStatus() == false)
+        {
+            delete quanser;
+            quanser = nullptr;
+        }
     }
+
+    this->hide();
+    emit accepted();
 }
 
 bool Connection::getSatus() const
 {
+    if(this->simulation) return this->simulation;
+
     if(quanser == nullptr)
         return false;
 
@@ -64,10 +76,28 @@ int Connection::getPort() const
 QString Connection::getIpAdress() const
 { return ipAdress; }
 
-double Connection::getSignal(const int channel) const
-{ return 0.5;return quanser->readAD(channel); }
+double Connection::getSignal(const int channel)
+{
+    if(simulation)
+    {
+        if(channel == 0) return tankSimulation.getNivelTq1();
+        else return tankSimulation.getNivelTq2();
+    }
+    else
+        return quanser->readAD(channel);
+}
 
 int Connection::sendSignal(const int channel, const float signal)
-{ return 1;return quanser->writeDA(channel, signal); }
+{
+    if(simulation)
+    {
+        tankSimulation.acionaBomba(signal);
+
+        tankSimulation.escoaTanque1(tankSimulation.getNivelTq1());
+        tankSimulation.escoaTanque2(tankSimulation.getNivelTq2());
+    }
+    else
+        return quanser->writeDA(channel, signal);
+}
 
 
