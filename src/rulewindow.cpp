@@ -74,7 +74,10 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
         for(int i=0; i<fuzyRules_size; i++) {
             tempListRule = myFuzzy->rules.at(i);
 
-            for(int j=0; j<tempListRule.size(); j++) {
+            for(int j=0; j<tempListRule.size(); j++)
+            {
+                tempRule = tempListRule.at(j);
+
                 if(j == 0)
                     rule = "SE ";
                 else if(j == tempListRule.size()-1)
@@ -82,10 +85,8 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
                 else
                     rule += " E ";
 
-                tempRule = tempListRule.at(j);
-
                 rule += ( " [ " + tempRule.io->name + " É " + \
-                        tempRule.io->fuzzyFunctions.at( (tempRule.idFunction) ).name + " ] " );
+                        tempRule.io->fuzzyFunctions.at( tempRule.idFunction ).name + " ] " );
             }
 
             ui->tableWidget->setRowCount( i+1 );
@@ -126,24 +127,30 @@ void RuleWindow::insertRule()
 
         temp.io = &myFuzzy->inputP;
         temp.idFunction = ui->comboBox_1->currentIndex();
-        newRules.push_back( temp );
     }
 
     if(myFuzzy->statusInputI) {
+        temp.operation = RULE_AND;
+        newRules.push_back( temp );
+
         rule += (" E [ " + myFuzzy->inputI.name + " É " + ui->comboBox_2->currentText() + " ] " );
 
         temp.io = &myFuzzy->inputI;
         temp.idFunction = ui->comboBox_2->currentIndex();
-        newRules.push_back( temp );
     }
 
     if(myFuzzy->statusInputD) {
+        temp.operation = RULE_AND;
+        newRules.push_back( temp );
+
         rule += (" E [ " + myFuzzy->inputD.name + " É " + ui->comboBox_3->currentText() + " ] " );
 
         temp.io = &myFuzzy->inputD;
         temp.idFunction = ui->comboBox_3->currentIndex();
-        newRules.push_back( temp );
     }
+
+    temp.operation = RULE_THEN;
+    newRules.push_back( temp );
 
     // output
     rule += " ENTÃO [ " + myFuzzy->output.name + " É " + ui->comboBox_4->currentText() + " ] ";
@@ -161,6 +168,7 @@ void RuleWindow::insertRule()
     }
 
     temp.io = &myFuzzy->output;
+    temp.operation = RULE_END;
     temp.idFunction = ui->comboBox_4->currentIndex();
     newRules.push_back( temp );
 

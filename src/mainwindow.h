@@ -80,23 +80,24 @@ private:
     const QVector<QString> graphWrite      = {"Sinal Enviado", "Sinal Calculado"};
     const QVector<QString> graphWriteColor = { "blue",         "red" };
 
-    double timeAux;
-    int    signalID;
-    double setPoint;
-    double offSet;
-    double period;
-    double periodMax;
+    double timeAux = 0;
+    int    signalID = 0;
+    double setPoint = 0;
+    double offSet = 0;
+    double period = 0;
+    double periodMax = 0;
 
-    int channelWrite = -1;
-    bool readLeavel1 = false;
-    bool readLeavel2 = false;
+    int channelWrite = 0;
+    bool readLeavel1 = true;
+    bool readLeavel2 = true;
 
     double calculatedSignal = 0;
     double sendSignal = 0;
+    double sendSignal_temp = 0;
     double error = 0;
 
-    double tankLevel_1;
-    double tankLevel_2;
+    double tankLevel_1 = 0;
+    double tankLevel_2 = 0;
     double fuzzySignal = 0;
 
     bool stopWrite = false;

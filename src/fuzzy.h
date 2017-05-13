@@ -7,6 +7,11 @@
 #include <QtMath>
 #include <QColor>
 
+#define RULE_END  -1
+#define RULE_THEN 0
+#define RULE_AND  1
+#define RULE_OR   2
+
 class FuzzyFunction
 {
 protected:
@@ -22,10 +27,10 @@ public:
         return listFuzzyFunctions_numberPoints.at(type);
     }
 
-    void generateGraph(const QVector<float> rangeVariable)
+    void generateGraph(const QVector<double> rangeVariable)
     {
-        float startX = rangeVariable[0];
-        float endX   = rangeVariable[1];
+        double startX = rangeVariable[0];
+        double endX   = rangeVariable[1];
 
         int size;
 
@@ -47,8 +52,8 @@ public:
             if( type == 0 && \
             ( range[0] <= x[i] && x[i] <= range[2] ) )
             {
-                float D1 = fabs(range[0]-range[1]);
-                float D2 = fabs(range[1]-range[2]);
+                double D1 = fabs(range[0]-range[1]);
+                double D2 = fabs(range[1]-range[2]);
                 if(x[i] <= range[1]) {
                     y[i] = fabs(range[0]-x[i])/D1;
                 } else {
@@ -59,8 +64,8 @@ public:
             else if(type == 1 && \
             ( range[0] <= x[i] && x[i] <= range[3] ) )
             {
-                float D1 = fabs(range[0]-range[1]);
-                float D2 = fabs(range[2]-range[3]);
+                double D1 = fabs(range[0]-range[1]);
+                double D2 = fabs(range[2]-range[3]);
                 if(x[i] <= range[1]) {
                     y[i] = fabs(range[0]-x[i])/D1;
                 }
@@ -82,7 +87,7 @@ public:
 public:
     QVector<QVector<double>> graph;
     QColor graphColor;
-    QVector<float> range;
+    QVector<double> range;
     QString name;
     int type;
 
@@ -96,7 +101,6 @@ public:
 
         return *this;
     }
-
 };
 
 class FuzzyVariable : protected FuzzyFunction
@@ -108,7 +112,7 @@ protected:
 public:
     QList<FuzzyFunction> fuzzyFunctions;
     QString name;
-    QVector<float> range = { -30, 30 };
+    QVector<double> range = { -30, 30 };
     //QVector<double> pointsX, pointsY;
 
     FuzzyVariable & operator = (const FuzzyVariable & other)
@@ -116,6 +120,8 @@ public:
         this->fuzzyFunctions = other.fuzzyFunctions;
         this->name = other.name;
         this->range = other.range;
+
+        return *this;
     }
 };
 
@@ -124,6 +130,7 @@ class FuzzyRule
 public:
     FuzzyVariable *io;
     int idFunction;
+    int operation;
 };
 
 class Fuzzy : protected FuzzyVariable
@@ -150,10 +157,12 @@ public:
         this->statusInputP = other.statusInputP;
         this->statusInputI = other.statusInputI;
         this->statusInputD = other.statusInputD;
+        this->statusOutput = other.statusOutput;
 
         this->inputP = other.inputP;
         this->inputI = other.inputI;
         this->inputD = other.inputD;
+        this->output = other.output;
 
         this->rules = other.rules;
 

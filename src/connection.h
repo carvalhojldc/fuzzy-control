@@ -29,7 +29,7 @@ class Connection : public QDialog
 
         double getSignal(const int channel);
 
-        int sendSignal(const int channel, const float signal);
+        int sendSignal(const int channel, const double signal);
 
     private slots:
         void setConnection();

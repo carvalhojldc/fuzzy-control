@@ -42,7 +42,8 @@ HEADERS  += mainwindow.h \
     quanser.h \
     fuzzycontrol.h \
     functionwindow.h \
-    rulewindow.h
+    rulewindow.h \
+    array3d.h
 
 FORMS    += mainwindow.ui \
     connection.ui \

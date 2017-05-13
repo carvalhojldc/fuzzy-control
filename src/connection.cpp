@@ -39,12 +39,11 @@ Connection::~Connection()
 
 void Connection::setConnection()
 {
-    qDebug() << "entrou";
     port     = ui->spinBoxPort->value();
     ipAdress = ui->lineIpAdress->text();
 
     simulation = ui->cb_simulation->isChecked();
-    qDebug() << simulation;
+
     if(simulation == false)
     {
         quanser = new Quanser(ipAdress.toLatin1().data(), port);
@@ -87,7 +86,7 @@ double Connection::getSignal(const int channel)
         return quanser->readAD(channel);
 }
 
-int Connection::sendSignal(const int channel, const float signal)
+int Connection::sendSignal(const int channel, const double signal)
 {
     if(simulation)
     {
@@ -97,7 +96,7 @@ int Connection::sendSignal(const int channel, const float signal)
         tankSimulation.escoaTanque2(tankSimulation.getNivelTq2());
     }
     else
-        return quanser->writeDA(channel, signal);
+        return quanser->writeDA(channel, (float)signal);
 }
 
 

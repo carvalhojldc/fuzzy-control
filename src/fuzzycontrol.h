@@ -2,7 +2,7 @@
 #define FUZZYCONTROL_H
 
 #include "fuzzy.h"
-
+#include "array3d.h"
 #include <QDebug>
 
 #define FUZZY_P 0
@@ -13,13 +13,12 @@
 class Defuzzification
 {
 private:
-    int numberFunctions;
 
-    double triangle(const QVector<float> range, const double x)
+    double triangle(QVector<double> range, const double x)
     {
-        float a = range[0];
-        float c = range[1];
-        float b = range[2];
+        double a = range[0];
+        double c = range[1];
+        double b = range[2];
 
         if(x >= a && x <= c)
             return (x-a)/(c-a);
@@ -29,12 +28,12 @@ private:
             return 0;
     }
 
-    double trapeze(const QVector<float> range, const double x)
+    double trapeze(QVector<double> range, const double x)
     {
-        float a = range[0];
-        float c = range[1];
-        float d = range[2];
-        float b = range[3];
+        double a = range[0];
+        double c = range[1];
+        double d = range[2];
+        double b = range[3];
 
         if(x >= a && x <= c)
             return (x-a)/(c-a);
@@ -46,28 +45,27 @@ private:
             return 0;
     }
 
-    double getData(const FuzzyFunction & f, const double x)
-    {
-        if(f.type == 0)
-            return triangle(f.range, x);
-        else if(f.type == 1)
-            return trapeze(f.range, x);
-        else
-            return 0;
-    }
-
 public:
-    QList<double> getDefuzzification(const QList<FuzzyFunction> & functions, const double valueX)
+    QVector<double> getDefuzzification(const QList<FuzzyFunction> & functions, const double valueX)
     {
-        QList<double> data;
+        QVector<double> data;
 
-        numberFunctions = functions.size();
+        FuzzyFunction ff;
+        double defuzzification;
 
-        //if(numberFunctions == 0) return data;
+        for(int f=0; f<functions.size(); f++)
+        {
+            ff = functions.at(f);
 
-        for(int f=0; f<numberFunctions; f++)
-            data.push_back( getData( functions.at(f), valueX ) );
+            if(ff.type == 0)
+                defuzzification = triangle(ff.range, valueX);
+            else if(ff.type == 1)
+                defuzzification = trapeze(ff.range, valueX);
+            else
+                defuzzification = 0;
 
+            data.push_back( defuzzification);
+        }
         return data;
     }
 };
@@ -97,22 +95,28 @@ private:
 
     double valueInp1, valueInp2, valueInp3;
 
+    double controlOutput, previousControlOutput, finalControlOutput;
+
     int modeFuzzyControl = 0;
 
-    QList<QList<double>> defuzzification;
+    QVector<QVector<double>> defuzzification;
 
     Defuzzification def;
+
+    Array3D *alpha;
+    Array3D *u;
 
 public:
     FuzzyControl();
     ~FuzzyControl();
 
     void setFuzzy(Fuzzy fuzzy, double setPoint);
-    double getControl(double tankLevel_1, double tankLevel_2);
+    double getControl(double tankLevel_2);
     double getError() const;
 
 private:
     double getMin(const double a, const double b) const;
+    double getMin(const double a, const double b, const double c) const;
     double sugeno(void);
 };
 

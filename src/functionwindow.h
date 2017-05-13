@@ -7,9 +7,6 @@
 #include <QList>
 #include "fuzzy.h"
 
-
-#include <QDebug>
-
 namespace Ui {
 class FunctionWindow;
 }

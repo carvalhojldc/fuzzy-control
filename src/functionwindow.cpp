@@ -238,7 +238,7 @@ void FunctionWindow::changeIORange(void)
 {
     QString range = ui->le_fuzzyRange->text();
     QStringList numberPoints;
-    float newStart, newEnd;
+    double newStart, newEnd;
 
     if(ioError()) return;
 
@@ -252,8 +252,8 @@ void FunctionWindow::changeIORange(void)
         return;
     }
 
-    newStart = numberPoints.at(0).toFloat(); // start range
-    newEnd = numberPoints.at(1).toFloat(); // end range
+    newStart = numberPoints.at(0).toDouble(); // start range
+    newEnd = numberPoints.at(1).toDouble(); // end range
 
     if(newStart == io->range[0] && newEnd == io->range[1]) return;
 
@@ -307,7 +307,7 @@ void FunctionWindow::insertFunction(void)
         // add new range
         newFunction.range.clear();
         for(int i=0; i<points.size(); i++)
-            newFunction.range.push_back( points.at(i).toFloat() );
+            newFunction.range.push_back( points.at(i).toDouble() );
 
         if( sugenoOUT() )
         {

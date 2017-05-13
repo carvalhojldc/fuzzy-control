@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timerFuzzyControl->moveToThread(threadFuzzyControl);
     connect(timerFuzzyControl, SIGNAL(timeout()), this, SLOT(myFuzzyControl()));
 
-    timerGraph->moveToThread(threadFuzzyControl);
+    timerGraph->moveToThread(threadGraph);
     connect(timerGraph, SIGNAL(timeout()), this, SLOT(myGraph()));
     // end threads
     // --------------
@@ -129,7 +129,6 @@ void MainWindow::connectServer()
         ui->labelStatus->setText(mensagem);
         ui->labelStatus->setStyleSheet("QLabel { color : green; }");
 
-        //threadFuzzyControl->start();
         threadGraph->start();
 
         UI_configGraphWrite();
@@ -306,6 +305,8 @@ double MainWindow::carrierSignal(double voltage)
 
 void MainWindow::myFuzzyControl()
 {
+    qDebug() << "thread running";
+
     if(readLeavel1)
         tankLevel_1 = connection->getSignal(0);
     else tankLevel_1 = 0;
@@ -314,34 +315,28 @@ void MainWindow::myFuzzyControl()
         tankLevel_2 = connection->getSignal(1);
     else tankLevel_2 = 0;
 
-    fuzzySignal = fuzzyControl.getControl(tankLevel_1, tankLevel_2);
+    fuzzySignal = fuzzyControl.getControl(tankLevel_2);
 
-    double sendSignal_temp;
-    if( ! stopWrite )
+    calculatedSignal = carrierSignal(fuzzySignal);
+
+    // travel
     {
-        calculatedSignal = carrierSignal(fuzzySignal);
+        if(calculatedSignal > 4)
+            sendSignal_temp = 4;
+        else if(calculatedSignal < -4)
+            sendSignal_temp = -4;
+        else
+            sendSignal_temp = calculatedSignal;
+            //sendSignal = calculatedSignal;
 
-        // travel
-        {
-            if(calculatedSignal > 4)
-                sendSignal_temp = 4;
-            else if(calculatedSignal < -4)
-                sendSignal_temp = -4;
-            else
-                sendSignal_temp = calculatedSignal;
-                //sendSignal = calculatedSignal;
+        if(tankLevel_1<=3 && sendSignal_temp<0) sendSignal_temp = 0;
 
-            if(tankLevel_1<=3 && sendSignal_temp<0) sendSignal_temp = 0;
-
-            if(tankLevel_1>=28 && sendSignal_temp>0) sendSignal_temp = 0;
-        }
-
-        error = setPoint-tankLevel_2;
+        if(tankLevel_1>=28 && sendSignal_temp>0) sendSignal_temp = 0;
     }
-    else
-        calculatedSignal = sendSignal_temp = error = 0;
 
-    sendSignal = 4;
+    error      = fuzzyControl.getError();
+    sendSignal = sendSignal_temp;
+
     // write signal
     connection->sendSignal(channelWrite, sendSignal);
 }
@@ -408,27 +403,19 @@ void MainWindow::UI_configSignal(int signal)
 
 void MainWindow::updateData()
 {
-    if((myFuzzy.statusInputP && myFuzzy.inputP.fuzzyFunctions.size() == 0) ||
-       (myFuzzy.statusInputI && myFuzzy.inputI.fuzzyFunctions.size() == 0) ||
-       (myFuzzy.statusInputD && myFuzzy.inputD.fuzzyFunctions.size() == 0) ||
-       ( myFuzzy.output.fuzzyFunctions.size() == 0) )
+    if( ( myFuzzy.statusInputP && myFuzzy.inputP.fuzzyFunctions.size() == 0 ) ||
+        ( myFuzzy.statusInputI && myFuzzy.inputI.fuzzyFunctions.size() == 0 ) ||
+        ( myFuzzy.statusInputD && myFuzzy.inputD.fuzzyFunctions.size() == 0 ) ||
+        ( myFuzzy.output.fuzzyFunctions.size() == 0) )
     {
         QMessageBox::warning(0, "Funções", "Defina as funções de todas as entradas e saídas!");
         return;
     }
-/*
+
     if(myFuzzy.rules.size() == 0)
     {
         QMessageBox::warning(0, "Regras", "Defina regras para o Controlador Fuzzy!");
         return;
-    }
-    */
-
-    qDebug() << "MainWindow::updateData()";
-    qDebug() << "&&&&&&&&&&&&&&&&&&&&&&";
-    if(!threadFuzzyControl->isRunning())
-    {
-        threadFuzzyControl->start();
     }
 
     signalID  = ui->cb_typesSigns->currentIndex();
@@ -442,10 +429,17 @@ void MainWindow::updateData()
     readLeavel2 = ui->cb_channelRead1->isChecked();
 
     fuzzyControl.setFuzzy(myFuzzy, setPoint);
+
+    if(!threadFuzzyControl->isRunning())
+    {
+        threadFuzzyControl->start();
+    }
 }
 
 void MainWindow::MandSugStatus()
 {
     myFuzzy.mamdaniStatus = ui->rb_mandani->isChecked();
     myFuzzy.sugenoStatus  = ui->rb_sugeno->isChecked();
+
+    myFuzzy.rules.clear();
 }
