@@ -11,24 +11,24 @@ FunctionWindow::FunctionWindow(Fuzzy *fuzzy, QWidget *parent) :
 
     io = nullptr;
 
-    ui->rb_inputP->setVisible(myFuzzy->statusInputP);
-    ui->rb_inputI->setVisible(myFuzzy->statusInputI);
-    ui->rb_inputD->setVisible(myFuzzy->statusInputD);
-    ui->rb_output->setVisible(true);
+    ui->rb_error->setEnabled(myFuzzy->statusError);
+    ui->rb_errorFD->setEnabled(myFuzzy->statusErrorFiDerivative);
+    ui->rb_errorSD->setEnabled(myFuzzy->statusErrorSeDerivative);
+    ui->rb_output->setEnabled(true);
 
-    ui->rb_inputP->setText( myFuzzy->inputP.name );
-    ui->rb_inputI->setText( myFuzzy->inputI.name );
-    ui->rb_inputD->setText( myFuzzy->inputD.name );
+    ui->rb_error->setText( myFuzzy->error.name );
+    ui->rb_errorFD->setText( myFuzzy->errorFirstDerivative.name );
+    ui->rb_errorSD->setText( myFuzzy->errorSecondDerivative.name );
     ui->rb_output->setText( myFuzzy->output.name );
 
     // ---------------
 
     configGraph();
 
-    connect(ui->rb_inputP, SIGNAL(clicked(bool)), this, SLOT(changeCurrentIO()));
-    connect(ui->rb_inputI, SIGNAL(clicked(bool)), this, SLOT(changeCurrentIO()));
-    connect(ui->rb_inputD, SIGNAL(clicked(bool)), this, SLOT(changeCurrentIO()));
-    connect(ui->rb_output, SIGNAL(clicked(bool)), this, SLOT(changeCurrentIO()));
+    connect(ui->rb_error,   SIGNAL(clicked(bool)), this, SLOT(changeCurrentIO()));
+    connect(ui->rb_errorFD, SIGNAL(clicked(bool)), this, SLOT(changeCurrentIO()));
+    connect(ui->rb_errorSD, SIGNAL(clicked(bool)), this, SLOT(changeCurrentIO()));
+    connect(ui->rb_output,  SIGNAL(clicked(bool)), this, SLOT(changeCurrentIO()));
 
     connect(ui->pb_fuzzyIO,        SIGNAL(clicked(bool)), this, SLOT(changeIORange())  );
 
@@ -129,9 +129,9 @@ bool FunctionWindow::ioError(void)
 
 FuzzyVariable * FunctionWindow::getIO(void)
 {
-    if( ui->rb_inputP->isChecked() ) return &myFuzzy->inputP;
-    else if( ui->rb_inputI->isChecked() ) return &myFuzzy->inputI;
-    else if( ui->rb_inputD->isChecked() ) return &myFuzzy->inputD;
+    if( ui->rb_error->isChecked() ) return &myFuzzy->error;
+    else if( ui->rb_errorFD->isChecked() ) return &myFuzzy->errorFirstDerivative;
+    else if( ui->rb_errorSD->isChecked() ) return &myFuzzy->errorSecondDerivative;
     else if( ui->rb_output->isChecked() ) return &myFuzzy->output;
     else return nullptr;
 }
@@ -225,12 +225,27 @@ void FunctionWindow::changeCurrentIO(void)
         ui->lb_x->setText("Pontos no exino X");
     }
 
+    ui->tableWidget->clear();
+
     FuzzyFunction function;
     for(int i=0; i<io->fuzzyFunctions.size(); i++) {
         function = io->fuzzyFunctions.at(i);
         ui->cb_currentFuzzyFunction->addItem(function.name, QVariant(i));
 
-        if(!sugenoOUT()) addGraph(&function, i);
+        if( sugenoOUT() )
+        {
+            QString currentText = myFuzzy->listSugenoFunctions.at( function.type );
+            QString stringPoints = "";
+            for(int i=0; i<function.range.size(); i++)
+                stringPoints += ( QString::number( function.range.at(i) ) + " " );
+
+            ui->tableWidget->setRowCount( i + 1 );
+            ui->tableWidget->setItem(i, 0, new QTableWidgetItem( function.name ) );
+            ui->tableWidget->setItem(i, 1, new QTableWidgetItem( currentText ) );
+            ui->tableWidget->setItem(i, 2, new QTableWidgetItem( stringPoints ) );
+        }
+        else
+            addGraph(&function, i);
     }
 }
 
@@ -317,9 +332,9 @@ void FunctionWindow::insertFunction(void)
             titleWindow = "Valores Sugeno";
 
             int nMultSugeno = 0;
-            if(myFuzzy->statusInputP) nMultSugeno += 1;
-            if(myFuzzy->statusInputI) nMultSugeno += 1;
-            if(myFuzzy->statusInputD) nMultSugeno += 1;
+            if(myFuzzy->statusError) nMultSugeno += 1;
+            if(myFuzzy->statusErrorFiDerivative) nMultSugeno += 1;
+            if(myFuzzy->statusErrorSeDerivative) nMultSugeno += 1;
 
             nMultSugeno += 1;
 

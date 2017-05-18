@@ -17,27 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui_rw = nullptr;
     ui_fw = nullptr;
 
-    myFuzzy.statusInputD = true;
-
     ui->setupUi(this);
-
-    // threads
-    timerFuzzyControl = new QTimer(0);
-    timerGraph        = new QTimer(0);
-
-    threadFuzzyControl = new QThread(this);
-    threadGraph        = new QThread(this);
-
-    timerFuzzyControl->start(100);
-    timerGraph->start(100);
-
-    timerFuzzyControl->moveToThread(threadFuzzyControl);
-    connect(timerFuzzyControl, SIGNAL(timeout()), this, SLOT(myFuzzyControl()));
-
-    timerGraph->moveToThread(threadGraph);
-    connect(timerGraph, SIGNAL(timeout()), this, SLOT(myGraph()));
-    // end threads
-    // --------------
 
     // Enable_graphs
     connect(ui->cb_channelRead0, SIGNAL(toggled(bool)), ui->cb_showChannel0, SLOT(setEnabled(bool)));
@@ -52,10 +32,34 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->cb_typesSigns, SIGNAL(currentIndexChanged(int)), this, SLOT(UI_configSignal(int)));
 
-    // end Enable_graphs
+    // END Enable_graphs
+    // --------------
+
+    connect(ui->dSpinAmp,       SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
+    connect(ui->dSpinPeriodo,   SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
+    connect(ui->dSpinOffSet,    SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
+    connect(ui->dSpinAux,       SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
+
+    connect(ui->rb_mandani, SIGNAL(clicked(bool)), this, SLOT(MandSugStatus()));
+    connect(ui->rb_sugeno,  SIGNAL(clicked(bool)), this, SLOT(MandSugStatus()));
+
+    connect(ui->pb_configFuzzyFunction, SIGNAL(clicked(bool)), this, SLOT(UI_functionWindow()));
+    connect(ui->pb_configFuzzyRules, SIGNAL(clicked(bool)), this, SLOT(UI_ruleWindow()));
+
+    connect(ui->cb_controlFuzzy, SIGNAL(currentIndexChanged(int)), this, SLOT(controlInput(int)));
+
+    connect(ui->buttonAtualizar, SIGNAL(clicked(bool)), this, SLOT(updateData()));
+
     // --------------
 
     // config_ui
+
+    ui->rb_mandani->setChecked(true);
+    ui->rb_sugeno->setChecked(false);
+
+    //myFuzzy.statusInputD = true;
+
+    ui->cb_WriteChannel->setDisabled(true);
 
     // list of signs of write
     for(int i=0; i<typesSigns.size(); i++)
@@ -76,30 +80,29 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->buttonAtualizar->setStyleSheet("background-color: green");
     ui->buttonStop->setStyleSheet("background-color: red");
 
-    // end config_ui
-    // --------------
-
-    connect(ui->dSpinAmp,       SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
-    connect(ui->dSpinPeriodo,   SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
-    connect(ui->dSpinOffSet,    SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
-    connect(ui->dSpinAux,       SIGNAL(valueChanged(double)), this, SLOT(UI_limitRandInput()));
-
-    connect(ui->rb_mandani, SIGNAL(clicked(bool)), this, SLOT(MandSugStatus()));
-    connect(ui->rb_sugeno,  SIGNAL(clicked(bool)), this, SLOT(MandSugStatus()));
-
-    connect(ui->pb_configFuzzyFunction, SIGNAL(clicked(bool)), this, SLOT(UI_functionWindow()));
-    connect(ui->pb_configFuzzyRules, SIGNAL(clicked(bool)), this, SLOT(UI_ruleWindow()));
-
-    connect(ui->cb_controlFuzzy, SIGNAL(currentIndexChanged(int)), this, SLOT(controlInput(int)));
-
-    connect(ui->buttonAtualizar, SIGNAL(clicked(bool)), this, SLOT(updateData()));
+    // END config_ui
 
     controlInput(0);
-
-    ui->rb_mandani->setChecked(true);
-    ui->rb_sugeno->setChecked(false);
     MandSugStatus();
 
+    // threads
+
+    threadFuzzyControl = new QThread(this);
+    threadGraph        = new QThread(this);
+
+    QTimer *timerGraph = new QTimer(0);
+    timerGraph->start( timerSleep );
+    timerGraph->moveToThread( threadGraph );
+
+    QTimer *timerControl = new QTimer(0);
+    timerControl->start( timerSleep );
+    timerControl->moveToThread( threadFuzzyControl );
+
+    connect(timerControl, SIGNAL(timeout()), this, SLOT(myFuzzyControl()));
+    connect(timerGraph, SIGNAL(timeout()), this, SLOT(myGraph()));
+
+    // end threads
+    // --------------
 
 }
 
@@ -236,7 +239,10 @@ void MainWindow::UI_DisplayGraph()
 
 void MainWindow::UI_functionWindow()
 {
-    if(ui_fw != nullptr) delete ui_fw;
+    if(ui_fw != nullptr) {
+        delete ui_fw;
+        ui_fw = nullptr;
+    }
 
     ui_fw = new FunctionWindow(&myFuzzy);
 
@@ -245,7 +251,10 @@ void MainWindow::UI_functionWindow()
 
 void MainWindow::UI_ruleWindow()
 {
-   if(ui_rw != nullptr) delete ui_rw;
+   if(ui_rw != nullptr) {
+       delete ui_rw;
+       ui_rw = nullptr;
+   }
 
     ui_rw = new RuleWindow(&myFuzzy);
 
@@ -254,25 +263,41 @@ void MainWindow::UI_ruleWindow()
 
 void MainWindow::controlInput(int id)
 {
+    myFuzzy.statusError = false;
+    myFuzzy.statusErrorFiDerivative = false;
+    myFuzzy.statusErrorSeDerivative = false;
+
+    myFuzzy.type = id;
+
     if(id == 0) { // fuzzy p
-        myFuzzy.statusInputP = true;
-        myFuzzy.statusInputI = false;
-        myFuzzy.statusInputD = false;
+        myFuzzy.statusError = true;
     }
     else if(id == 1) { // fuzzy pi
-        myFuzzy.statusInputP = true;
-        myFuzzy.statusInputI = true;
-        myFuzzy.statusInputD = false;;
+        myFuzzy.statusError = true;
+        myFuzzy.statusErrorFiDerivative = true;
     }
     else if(id == 2) { // fuzzy pd
-        myFuzzy.statusInputP = true;
-        myFuzzy.statusInputI = false;
-        myFuzzy.statusInputD = true;
+        myFuzzy.statusError = true;
+        myFuzzy.statusErrorFiDerivative = true;
     }
     else if(id == 3) { // fuzzy pid
-        myFuzzy.statusInputP = true;
-        myFuzzy.statusInputI = true;
-        myFuzzy.statusInputD = true;
+        myFuzzy.statusError = true;
+        myFuzzy.statusErrorFiDerivative = true;
+        myFuzzy.statusErrorSeDerivative = true;
+    }
+
+    myFuzzy.rules.clear();
+    myFuzzy.output.Clear();
+
+    if(ui_rw != nullptr) {
+        delete ui_rw;
+        ui_rw = nullptr;
+    }
+
+
+    if(ui_fw != nullptr) {
+        delete ui_fw;
+        ui_fw = nullptr;
     }
 }
 
@@ -303,39 +328,43 @@ double MainWindow::carrierSignal(double voltage)
     timeAux += 0.1;
 }
 
+double MainWindow::travel(double calculatedSignal, double tankLevel_2)
+{
+    if(calculatedSignal > 4)
+        calculatedSignal = 4;
+    else if(calculatedSignal < -4)
+        calculatedSignal = -4;
+
+    if(tankLevel_2<=3 && calculatedSignal<0) calculatedSignal = 0;
+
+    if(tankLevel_2>=28 && calculatedSignal>0) calculatedSignal = 0;
+
+    return calculatedSignal;
+}
+
 void MainWindow::myFuzzyControl()
 {
-    qDebug() << "thread running";
+    qDebug() << "Controlador Fuzzy";
 
-    if(readLeavel1)
-        tankLevel_1 = connection->getSignal(0);
-    else tankLevel_1 = 0;
+    {
+        if(readLeavel1)
+            tankLevel_1 = connection->getSignal(0);
+        else
+            tankLevel_1 = 0;
 
-    if(readLeavel2)
-        tankLevel_2 = connection->getSignal(1);
-    else tankLevel_2 = 0;
+        if(readLeavel2)
+            tankLevel_2 = connection->getSignal(1);
+        else
+            tankLevel_2 = 0;
+    }
 
     fuzzySignal = fuzzyControl.getControl(tankLevel_2);
+    error = fuzzyControl.getError();
+
 
     calculatedSignal = carrierSignal(fuzzySignal);
 
-    // travel
-    {
-        if(calculatedSignal > 4)
-            sendSignal_temp = 4;
-        else if(calculatedSignal < -4)
-            sendSignal_temp = -4;
-        else
-            sendSignal_temp = calculatedSignal;
-            //sendSignal = calculatedSignal;
-
-        if(tankLevel_1<=3 && sendSignal_temp<0) sendSignal_temp = 0;
-
-        if(tankLevel_1>=28 && sendSignal_temp>0) sendSignal_temp = 0;
-    }
-
-    error      = fuzzyControl.getError();
-    sendSignal = sendSignal_temp;
+    sendSignal = travel(calculatedSignal, tankLevel_2);
 
     // write signal
     connection->sendSignal(channelWrite, sendSignal);
@@ -365,6 +394,9 @@ void MainWindow::myGraph()
     timeWrite += 0.1;
     ui->graphWrite->replot();
     ui->graphRead->replot();
+
+    ui->pb_tanque1->setValue( tankLevel_1 );
+    ui->pb_tanque2->setValue( tankLevel_2 );
 }
 
 void MainWindow::UI_limitRandInput()
@@ -403,9 +435,9 @@ void MainWindow::UI_configSignal(int signal)
 
 void MainWindow::updateData()
 {
-    if( ( myFuzzy.statusInputP && myFuzzy.inputP.fuzzyFunctions.size() == 0 ) ||
-        ( myFuzzy.statusInputI && myFuzzy.inputI.fuzzyFunctions.size() == 0 ) ||
-        ( myFuzzy.statusInputD && myFuzzy.inputD.fuzzyFunctions.size() == 0 ) ||
+    if( ( myFuzzy.statusError && myFuzzy.error.fuzzyFunctions.size() == 0 ) ||
+        ( myFuzzy.statusErrorFiDerivative && myFuzzy.errorFirstDerivative.fuzzyFunctions.size() == 0 ) ||
+        ( myFuzzy.statusErrorSeDerivative && myFuzzy.errorSecondDerivative.fuzzyFunctions.size() == 0 ) ||
         ( myFuzzy.output.fuzzyFunctions.size() == 0) )
     {
         QMessageBox::warning(0, "Funções", "Defina as funções de todas as entradas e saídas!");
@@ -437,9 +469,15 @@ void MainWindow::updateData()
 }
 
 void MainWindow::MandSugStatus()
-{
+{    
     myFuzzy.mamdaniStatus = ui->rb_mandani->isChecked();
     myFuzzy.sugenoStatus  = ui->rb_sugeno->isChecked();
 
+    myFuzzy.output.Clear();
     myFuzzy.rules.clear();
+
+    if(ui_rw != nullptr) {
+        delete ui_rw;
+        ui_rw = nullptr;
+    }
 }

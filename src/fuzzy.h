@@ -12,12 +12,18 @@
 #define RULE_AND  1
 #define RULE_OR   2
 
+#define FUZZY_P   0
+#define FUZZY_PI  1
+#define FUZZY_PD  2
+#define FUZZY_PID 3
+
 class FuzzyFunction
 {
 protected:
     const QStringList listFuzzyFunctions = { "Triangle", "Trapeze" };
     const QList<int> listFuzzyFunctions_numberPoints = { 3, 4 };
 
+    const QStringList listSugenoFunctions = { "Constante", "Linear"};
 public:
     int getNumberPoints()
     {
@@ -101,6 +107,12 @@ public:
 
         return *this;
     }
+
+    void Clear()
+    {
+        graph.clear();
+        range.clear();
+    }
 };
 
 class FuzzyVariable : protected FuzzyFunction
@@ -123,6 +135,13 @@ public:
 
         return *this;
     }
+
+
+   void Clear()
+   {
+        fuzzyFunctions.clear();
+        range = { -30, 30 };
+   }
 };
 
 class FuzzyRule
@@ -144,30 +163,43 @@ protected:
     const QStringList listControl = { "Fuzzy-P", "Fuzzy-PI", "Fuzzy-PD", "Fuzzy-PID" };
 
 private:
-    bool statusInputP, statusInputI, statusInputD, statusOutput;
-    FuzzyVariable inputP, inputI, inputD, output;
+    bool statusError,
+         statusErrorFiDerivative,
+         statusErrorSeDerivative,
+         statusOutput;
+
+    FuzzyVariable error,
+                  errorFirstDerivative,
+                  errorSecondDerivative,
+                  output;
+
     QList<QList<FuzzyRule>> rules;
+
     bool sugenoStatus, mamdaniStatus;
+
+    int type;
 
 public:
     Fuzzy();
 
     Fuzzy & operator = (const Fuzzy & other)
     {
-        this->statusInputP = other.statusInputP;
-        this->statusInputI = other.statusInputI;
-        this->statusInputD = other.statusInputD;
-        this->statusOutput = other.statusOutput;
+        this->statusOutput            = other.statusOutput;
+        this->statusError             = other.statusError;
+        this->statusErrorFiDerivative = other.statusErrorFiDerivative;
+        this->statusErrorSeDerivative = other.statusErrorSeDerivative;
 
-        this->inputP = other.inputP;
-        this->inputI = other.inputI;
-        this->inputD = other.inputD;
-        this->output = other.output;
+        this->output                = other.output;
+        this->error                 = other.error;
+        this->errorFirstDerivative  = other.errorFirstDerivative;
+        this->errorSecondDerivative = other.errorSecondDerivative;
 
         this->rules = other.rules;
 
         this->sugenoStatus  = other.sugenoStatus;
         this->mamdaniStatus = other.mamdaniStatus;
+
+        this->type = other.type;
 
         return *this;
     }

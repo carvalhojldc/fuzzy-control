@@ -125,9 +125,6 @@ public:
     *Grava a tensao especificada no parametro no canal DA
     */
     int writeDA(int _channel, float _volts) {
-       // return 1;
-        if(_volts>4) _volts = 4;
-        if(_volts<-4) _volts = -4;
 
         string _toSend = "WRITE ";
         _toSend.append(itoa(_channel));

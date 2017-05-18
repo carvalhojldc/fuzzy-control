@@ -2,12 +2,12 @@
 
 Fuzzy::Fuzzy()
 {
-    inputP.name = "Der. do Erro";
-    inputI.name = "Erro";
-    inputD.name = "Der. Seg. do Erro";
+    error.name = "Erro";
     output.name = "Saída";
+    errorFirstDerivative.name = "Der. do Erro";
+    errorSecondDerivative.name = "Der. Seg. do Erro";
 
-    statusInputP = statusInputI = statusInputD = false;
+    statusError = statusErrorFiDerivative = statusErrorSeDerivative = false;
     statusOutput = true;
 
     sugenoStatus = mamdaniStatus = false;

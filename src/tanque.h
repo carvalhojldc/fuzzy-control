@@ -37,7 +37,6 @@ public:
 		if(sinal > 4.0) sinal = 4.0;
 		if(sinal < -4.0) sinal = -4.0;
 
-
 		if(nivelTq1 <= nivelMinimo && sinal < 0){
 		    sinal = 0;
 		}

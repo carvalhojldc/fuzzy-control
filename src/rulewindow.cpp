@@ -10,8 +10,8 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
     ui->setupUi(this);
 
     // config IO
-    if(myFuzzy->statusInputP) {
-        FuzzyVariable *var = &myFuzzy->inputP;
+    if(myFuzzy->statusError) {
+        FuzzyVariable *var = &myFuzzy->error;
         ui->label_1->setText( var->name );
 
         for(int i=0; i<var->fuzzyFunctions.size(); i++)
@@ -21,8 +21,8 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
     } else
         ui->widget->setVisible(false);
 
-    if(myFuzzy->statusInputI) {
-        FuzzyVariable *var = &myFuzzy->inputI;
+    if(myFuzzy->statusErrorFiDerivative) {
+        FuzzyVariable *var = &myFuzzy->errorFirstDerivative;
         ui->label_2->setText( var->name );
 
         for(int i=0; i<var->fuzzyFunctions.size(); i++)
@@ -32,8 +32,8 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
     } else
         ui->widget_2->setVisible(false);
 
-    if(myFuzzy->statusInputD) {
-        FuzzyVariable *var = &myFuzzy->inputD;
+    if(myFuzzy->statusErrorSeDerivative) {
+        FuzzyVariable *var = &myFuzzy->errorSecondDerivative;
         ui->label_3->setText( var->name );
 
         for(int i=0; i<var->fuzzyFunctions.size(); i++)
@@ -97,6 +97,8 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
     ui->label_numberRules->setText( QString::number(fuzyRules_size) );
     // END load rules
     //---------------
+
+    ui->removeRule->setEnabled(true);
 }
 
 RuleWindow::~RuleWindow()
@@ -106,13 +108,13 @@ RuleWindow::~RuleWindow()
 
 void RuleWindow::insertRule()
 {
-    if( (myFuzzy->statusInputP && myFuzzy->inputP.fuzzyFunctions.size() == 0) ||
-        (myFuzzy->statusInputI && myFuzzy->inputI.fuzzyFunctions.size() == 0) ||
-        (myFuzzy->statusInputD && myFuzzy->inputD.fuzzyFunctions.size() == 0) ||
+    if( (myFuzzy->statusError && myFuzzy->error.fuzzyFunctions.size() == 0) ||
+        (myFuzzy->statusErrorFiDerivative && myFuzzy->errorFirstDerivative.fuzzyFunctions.size() == 0) ||
+        (myFuzzy->statusErrorSeDerivative && myFuzzy->errorSecondDerivative.fuzzyFunctions.size() == 0) ||
         (myFuzzy->output.fuzzyFunctions.size() == 0)
             )
     {
-        QMessageBox::critical(0, "Adicionar regra", "Configuração inválida, adicione funções de pertinência nas IO em vazio!");
+        QMessageBox::critical(0, "Adicionar regra", "Configuração inválida! Defina funções para as entradas e saída!");
         return;
     }
 
@@ -122,30 +124,30 @@ void RuleWindow::insertRule()
     QList<FuzzyRule> newRules;
     FuzzyRule temp;
 
-    if(myFuzzy->statusInputP) {
-        rule = "SE [ " + myFuzzy->inputP.name + " É " + ui->comboBox_1->currentText() + " ] ";
+    if(myFuzzy->statusError) {
+        rule = "SE [ " + myFuzzy->error.name + " É " + ui->comboBox_1->currentText() + " ] ";
 
-        temp.io = &myFuzzy->inputP;
+        temp.io = &myFuzzy->error;
         temp.idFunction = ui->comboBox_1->currentIndex();
     }
 
-    if(myFuzzy->statusInputI) {
+    if(myFuzzy->statusErrorFiDerivative) {
         temp.operation = RULE_AND;
         newRules.push_back( temp );
 
-        rule += (" E [ " + myFuzzy->inputI.name + " É " + ui->comboBox_2->currentText() + " ] " );
+        rule += (" E [ " + myFuzzy->errorFirstDerivative.name + " É " + ui->comboBox_2->currentText() + " ] " );
 
-        temp.io = &myFuzzy->inputI;
+        temp.io = &myFuzzy->errorFirstDerivative;
         temp.idFunction = ui->comboBox_2->currentIndex();
     }
 
-    if(myFuzzy->statusInputD) {
+    if(myFuzzy->statusErrorSeDerivative) {
         temp.operation = RULE_AND;
         newRules.push_back( temp );
 
-        rule += (" E [ " + myFuzzy->inputD.name + " É " + ui->comboBox_3->currentText() + " ] " );
+        rule += (" E [ " + myFuzzy->errorSecondDerivative.name + " É " + ui->comboBox_3->currentText() + " ] " );
 
-        temp.io = &myFuzzy->inputD;
+        temp.io = &myFuzzy->errorSecondDerivative;
         temp.idFunction = ui->comboBox_3->currentIndex();
     }
 
@@ -162,7 +164,7 @@ void RuleWindow::insertRule()
         if(row == rule)
         {
             QMessageBox::critical(0, "Adicionar regra",
-                              "A regra escolhida já foi inserida, insira outra diferente de:\n" + rule);
+                    "Regrá já inserida, defina outra!");
             return;
         }
     }
@@ -182,9 +184,6 @@ void RuleWindow::insertRule()
     ui->tableWidget->resizeColumnsToContents();
 
     ui->label_numberRules->setText( QString::number(idNewRule+1) );
-
-    //if(!ui->removeRule->isEnabled())
-        //ui->removeRule->setEnabled(true);
 }
 
 void RuleWindow::removeRule()

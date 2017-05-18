@@ -46,6 +46,7 @@ private slots:
 
     double carrierSignal(double voltage);
 
+    double travel(double calculatedSignal, double tankLevel_2);
     void myFuzzyControl();
     void myGraph();
 
@@ -68,8 +69,8 @@ private:
 
     FuzzyControl fuzzyControl;
 
-    QTimer *timerFuzzyControl;
-    QTimer *timerGraph;
+   // QTimer *timerFuzzyControl;
+   // QTimer *timerGraph;
 
     QThread *threadFuzzyControl;
     QThread *threadGraph;
@@ -101,6 +102,9 @@ private:
     double fuzzySignal = 0;
 
     bool stopWrite = false;
+
+    /* in ms */
+    const int timerSleep = 90;
 };
 
 #endif // MAINWINDOW_H

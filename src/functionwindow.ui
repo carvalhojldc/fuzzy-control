@@ -97,7 +97,7 @@
       <item row="1" column="0" colspan="2">
        <layout class="QGridLayout" name="gridLayout_9">
         <item row="0" column="0">
-         <widget class="QRadioButton" name="rb_inputP">
+         <widget class="QRadioButton" name="rb_error">
           <property name="text">
            <string>Entrada 1</string>
           </property>
@@ -111,14 +111,14 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QRadioButton" name="rb_inputI">
+         <widget class="QRadioButton" name="rb_errorFD">
           <property name="text">
            <string>Entrada 2</string>
           </property>
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QRadioButton" name="rb_inputD">
+         <widget class="QRadioButton" name="rb_errorSD">
           <property name="text">
            <string>Entrada 3</string>
           </property>
@@ -395,19 +395,20 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>pb_editFunction</tabstop>
-  <tabstop>pb_insertFunction</tabstop>
+  <tabstop>rb_error</tabstop>
+  <tabstop>rb_errorFD</tabstop>
+  <tabstop>rb_errorSD</tabstop>
+  <tabstop>rb_output</tabstop>
   <tabstop>le_fuzzyRange</tabstop>
   <tabstop>pb_fuzzyIO</tabstop>
-  <tabstop>rb_inputD</tabstop>
-  <tabstop>rb_inputP</tabstop>
-  <tabstop>rb_output</tabstop>
   <tabstop>le_InsertFunctionName</tabstop>
-  <tabstop>cb_currentFuzzyFunction</tabstop>
-  <tabstop>le_InsertRangeFunction</tabstop>
   <tabstop>cb_InsertFunctionType</tabstop>
+  <tabstop>le_InsertRangeFunction</tabstop>
+  <tabstop>pb_insertFunction</tabstop>
+  <tabstop>cb_currentFuzzyFunction</tabstop>
+  <tabstop>pb_editFunction</tabstop>
   <tabstop>pb_deleteFunction</tabstop>
-  <tabstop>rb_inputI</tabstop>
+  <tabstop>tableWidget</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -5,11 +5,6 @@
 #include "array3d.h"
 #include <QDebug>
 
-#define FUZZY_P 0
-#define FUZZY_PI 1
-#define FUZZY_PD 2
-#define FUZZY_PID 3
-
 class Defuzzification
 {
 private:
@@ -50,6 +45,11 @@ public:
     {
         QVector<double> data;
 
+        if(functions.size() == 0) {
+            data.push_back(999);
+            return data;
+        }
+
         FuzzyFunction ff;
         double defuzzification;
 
@@ -85,10 +85,6 @@ private:
 
       -> In a Fuzzy analogy (Fuzzy pid = p + i + d )
         d(u)/dt = d(e)/dt + e + d²(e)/dt²
-            * output = output - previousOutput
-            * p = error - previousError
-            * i = error
-            * d = previousError - previousPeviousError
 
         PS: e means error
     */
@@ -97,14 +93,13 @@ private:
 
     double controlOutput, previousControlOutput, finalControlOutput;
 
-    int modeFuzzyControl = 0;
-
     QVector<QVector<double>> defuzzification;
 
     Defuzzification def;
 
     Array3D *alpha;
-    Array3D *u;
+    Array3D *rules;
+    QVector<double> fss;
 
 public:
     FuzzyControl();
@@ -115,7 +110,6 @@ public:
     double getError() const;
 
 private:
-    double getMin(const double a, const double b) const;
     double getMin(const double a, const double b, const double c) const;
     double sugeno(void);
 };
