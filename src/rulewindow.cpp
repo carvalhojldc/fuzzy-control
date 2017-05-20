@@ -98,7 +98,7 @@ RuleWindow::RuleWindow(Fuzzy * fuzzy, QWidget *parent) :
     // END load rules
     //---------------
 
-    ui->removeRule->setEnabled(true);
+    ui->removeRule->setEnabled(false);
 }
 
 RuleWindow::~RuleWindow()

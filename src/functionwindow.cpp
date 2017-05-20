@@ -22,8 +22,43 @@ FunctionWindow::FunctionWindow(Fuzzy *fuzzy, QWidget *parent) :
     ui->rb_output->setText( myFuzzy->output.name );
 
     // ---------------
+    // Config graph
+    {
+        ui->funcionPlot->xAxis->setLabel("x");
+        ui->funcionPlot->yAxis->setLabel("y");
 
-    configGraph();
+        ui->funcionPlot->legend->setVisible(true);
+
+        ui->funcionPlot->yAxis->grid()->setSubGridVisible(true);
+        ui->funcionPlot->xAxis->grid()->setSubGridVisible(true);
+
+        ui->funcionPlot->xAxis->setRange(-30,30);
+        ui->funcionPlot->yAxis->setRange(0,1);
+
+        //Usuário arraste eixo varia com o mouse, zoom com a roda do mouse e selecione gráficos clicando:
+        //ui->funcionPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables );
+        ui->funcionPlot->setInteractions(QCP::iSelectPlottables );
+        //ui->funcionPlot->axisRect(0)->setRangeDrag(Qt::Vertical);
+        //ui->funcionPlot->axisRect(0)->setRangeZoom(Qt::Vertical);
+
+        QCPLayoutGrid *subLayout = new QCPLayoutGrid;
+        ui->funcionPlot->plotLayout()->addElement(0, 1, subLayout);
+        subLayout->addElement(0, 0, new QCPLayoutElement);
+        subLayout->addElement(1, 0, ui->funcionPlot->legend);
+        subLayout->addElement(2, 0, new QCPLayoutElement);
+        ui->funcionPlot->plotLayout()->setColumnStretchFactor(1, 0.001);
+
+        ui->funcionPlot->replot();
+
+        // select graph in legend
+        connect(ui->funcionPlot, SIGNAL(legendClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)),
+            this, SLOT(graphLegendClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)));
+
+       // connect(ui->funcionPlot, SIGNAL(itemClick(QCPAbstractItem*,QMouseEvent*)), \
+            this, SLOT(graphClick(QCPAbstractItem*,QMouseEvent*)));
+        connect(ui->funcionPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)),
+            this, SLOT(graphClick(QCPAbstractPlottable*, QMouseEvent*)));
+    }
 
     connect(ui->rb_error,   SIGNAL(clicked(bool)), this, SLOT(changeCurrentIO()));
     connect(ui->rb_errorFD, SIGNAL(clicked(bool)), this, SLOT(changeCurrentIO()));
@@ -32,19 +67,23 @@ FunctionWindow::FunctionWindow(Fuzzy *fuzzy, QWidget *parent) :
 
     connect(ui->pb_fuzzyIO,        SIGNAL(clicked(bool)), this, SLOT(changeIORange())  );
 
-    connect(ui->pb_insertFunction, SIGNAL(clicked(bool)), this, SLOT(insertFunction()) );
-    connect(ui->pb_editFunction,   SIGNAL(clicked(bool)), this, SLOT(editFunction())   );
-    connect(ui->pb_deleteFunction, SIGNAL(clicked(bool)), this, SLOT(deleteFunction()) );
+    connect(ui->pb_insertFunction, SIGNAL(clicked(bool)), this, SLOT(insertFunction())     );
+    connect(ui->pb_editFunction,   SIGNAL(clicked(bool)), this, SLOT(editFunction())       );
+    connect(ui->pb_deleteFunction, SIGNAL(clicked(bool)), this, SLOT(deleteFunction())     );
+    connect(ui->pb_deleteAll,      SIGNAL(clicked(bool)), this, SLOT(deleteAllFunctions()) );
 
-    //for(int i=0; i<myFuzzy->listFuzzyFunctions.size(); i++)
-      //  ui->cb_InsertFunctionType->addItem(myFuzzy->listFuzzyFunctions.at(i), QVariant(i));
+    connect(ui->tableWidget, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(currentFunctionSugeno()));
 
     QStringList HorizontalHeaderLabels = {"Nome", "Tipo", "Valores"};
-    ui->tableWidget->setColumnCount(3);
+    ui->tableWidget->setColumnCount(HorizontalHeaderLabels.size());
     ui->tableWidget->setHorizontalHeaderLabels(HorizontalHeaderLabels);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setHidden(true);
+
+//    currentFunction = -1;
+
+    clearCurrentFunction();
 }
 
 FunctionWindow::~FunctionWindow()
@@ -52,38 +91,39 @@ FunctionWindow::~FunctionWindow()
     delete ui;
 }
 
-void FunctionWindow::configGraph(void)
-{
-    ui->funcionPlot->xAxis->setLabel("x");
-    ui->funcionPlot->yAxis->setLabel("y");
+//void FunctionWindow::configGraph(void)
+//{
+//    ui->funcionPlot->xAxis->setLabel("x");
+//    ui->funcionPlot->yAxis->setLabel("y");
 
-    ui->funcionPlot->legend->setVisible(true);
+//    ui->funcionPlot->legend->setVisible(true);
 
-    ui->funcionPlot->yAxis->grid()->setSubGridVisible(true);
-    ui->funcionPlot->xAxis->grid()->setSubGridVisible(true);
+//    ui->funcionPlot->yAxis->grid()->setSubGridVisible(true);
+//    ui->funcionPlot->xAxis->grid()->setSubGridVisible(true);
 
-    ui->funcionPlot->xAxis->setRange(-30,30);
-    ui->funcionPlot->yAxis->setRange(0,1);
+//    ui->funcionPlot->xAxis->setRange(-30,30);
+//    ui->funcionPlot->yAxis->setRange(0,1);
 
-    //Usuário arraste eixo varia com o mouse, zoom com a roda do mouse e selecione gráficos clicando:
-    //ui->funcionPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables );
-    ui->funcionPlot->setInteractions(QCP::iSelectPlottables );
-    //ui->funcionPlot->axisRect(0)->setRangeDrag(Qt::Vertical);
-    //ui->funcionPlot->axisRect(0)->setRangeZoom(Qt::Vertical);
+//    //Usuário arraste eixo varia com o mouse, zoom com a roda do mouse e selecione gráficos clicando:
+//    //ui->funcionPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables );
+//    ui->funcionPlot->setInteractions(QCP::iSelectPlottables );
+//    //ui->funcionPlot->axisRect(0)->setRangeDrag(Qt::Vertical);
+//    //ui->funcionPlot->axisRect(0)->setRangeZoom(Qt::Vertical);
 
-    QCPLayoutGrid *subLayout = new QCPLayoutGrid;
-    ui->funcionPlot->plotLayout()->addElement(0, 1, subLayout);
-    subLayout->addElement(0, 0, new QCPLayoutElement);
-    subLayout->addElement(1, 0, ui->funcionPlot->legend);
-    subLayout->addElement(2, 0, new QCPLayoutElement);
-    ui->funcionPlot->plotLayout()->setColumnStretchFactor(1, 0.001);
+//    QCPLayoutGrid *subLayout = new QCPLayoutGrid;
+//    ui->funcionPlot->plotLayout()->addElement(0, 1, subLayout);
+//    subLayout->addElement(0, 0, new QCPLayoutElement);
+//    subLayout->addElement(1, 0, ui->funcionPlot->legend);
+//    subLayout->addElement(2, 0, new QCPLayoutElement);
+//    ui->funcionPlot->plotLayout()->setColumnStretchFactor(1, 0.001);
 
-    ui->funcionPlot->replot();
+//    ui->funcionPlot->replot();
 
-    // select graph in legend
-    connect(ui->funcionPlot, SIGNAL(legendClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)),
-        this, SLOT(graphLegendClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)));
-}
+//    // select graph in legend
+//    connect(ui->funcionPlot, SIGNAL(legendClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)),
+//        this, SLOT(graphLegendClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)));
+
+//}
 
 void FunctionWindow::clearGraph(int & id)
 {
@@ -93,14 +133,17 @@ void FunctionWindow::clearGraph(int & id)
 
 void FunctionWindow::clearAllGraphs(void)
 {
-    for(int i=io->fuzzyFunctions.size()-1; i>=0; i--)
-        clearGraph(i);
+    //for(int i=io->fuzzyFunctions.size()-1; i>=0; i--)
+       // clearGraph(i);
+    ui->funcionPlot->clearGraphs();
+    ui->funcionPlot->replot();
 }
 
 void FunctionWindow::addGraph(const FuzzyFunction *function, const int & id)
 {
     //QColor myColor = QColor(rand()%200+10, rand()%200+10, rand()%200+10, 255);
 
+    qDebug() << "vai add";
     ui->funcionPlot->addGraph();
 
     ui->funcionPlot->graph( id )->addToLegend();
@@ -115,9 +158,25 @@ void FunctionWindow::addGraph(const FuzzyFunction *function, const int & id)
     ui->funcionPlot->graph( id )->setData(function->graph[0], function->graph[1]);
 
     ui->funcionPlot->replot();
+    qDebug() << "addeu";
 }
 
-bool FunctionWindow::ioError(void)
+void FunctionWindow::addDataTable(const FuzzyFunction *function)
+{
+    QString currentText = myFuzzy->listSugenoFunctions.at( function->type );
+    QString stringPoints = "";
+    int i = ui->tableWidget->rowCount();
+
+    for(int i=0; i<function->range.size(); i++)
+        stringPoints += ( QString::number( function->range.at(i) ) + " " );
+
+    ui->tableWidget->setRowCount( i + 1 );
+    ui->tableWidget->setItem(i, 0, new QTableWidgetItem( function->name ) );
+    ui->tableWidget->setItem(i, 1, new QTableWidgetItem( currentText ) );
+    ui->tableWidget->setItem(i, 2, new QTableWidgetItem( stringPoints ) );
+}
+
+bool FunctionWindow::errorIO(void)
 {
     if(io == nullptr) {
         QMessageBox::critical(0, "Configuração",
@@ -136,14 +195,29 @@ FuzzyVariable * FunctionWindow::getIO(void)
     else return nullptr;
 }
 
-void FunctionWindow::updateCurrentData(void) {
-    FuzzyFunction function;
+void FunctionWindow::setCurrentFunction(const int id)
+{
+    QString range = "";
+    for(int i=0; i<io->fuzzyFunctions.at(id).range.size(); i++)
+        range += (QString::number(io->fuzzyFunctions.at(id).range[i]) + " ");
 
-    ui->cb_currentFuzzyFunction->clear();
-    for(int i=0; i<io->fuzzyFunctions.size(); i++) {
-        function = io->fuzzyFunctions.at(i);
-        ui->cb_currentFuzzyFunction->addItem(function.name, QVariant(i));
-    }
+    this->currentFunction = id;
+    ui->label_currentFunction->setText( "Nome: " + io->fuzzyFunctions.at(id).name);
+
+    if(sugenoAndOut())
+        ui->label_currentRange->setText("Valores: " + range);
+    else
+        ui->label_currentRange->setText("Pontos: " + range);
+
+    ui->label_currentRange->setHidden(false);
+}
+
+void FunctionWindow::clearCurrentFunction(void)
+{
+    this->currentFunction = -1;
+    ui->label_currentFunction->setText( "Nenhuma função selecionada!");
+    ui->label_currentRange->clear();
+    ui->label_currentRange->setHidden(true);
 }
 
 // -------------------
@@ -163,9 +237,10 @@ void FunctionWindow::graphLegendClick(QCPLegend *l, QCPAbstractLegendItem *ai, Q
             if( l->parentPlot()->graph(i)->name() == \
                 ((QCPPlottableLegendItem*)ai)->plottable()->name() )
             {
-                l->parentPlot()->graph(i)->setSelected(!l->parentPlot()->graph(i)->selected());
+                //l->parentPlot()->graph(i)->setSelected(!l->parentPlot()->graph(i)->selected());
+                l->parentPlot()->graph(i)->setSelected(true);
 
-                ui->cb_currentFuzzyFunction->setCurrentIndex(i);
+                setCurrentFunction(i);
             }
             else
             {
@@ -173,9 +248,25 @@ void FunctionWindow::graphLegendClick(QCPLegend *l, QCPAbstractLegendItem *ai, Q
             }
         }
     }
+
+    l->parentPlot()->replot();
 }
 
-bool FunctionWindow::sugenoOUT()
+void FunctionWindow::graphClick(QCPAbstractPlottable *plottable, QMouseEvent* me)
+{
+    Q_UNUSED(me);
+
+    QString functionName = plottable->name();
+
+    for(int i=0; i<io->fuzzyFunctions.size(); i++)
+        if(functionName == io->fuzzyFunctions.at(i).name)
+        {
+            setCurrentFunction(i);
+            break;
+        }
+}
+
+bool FunctionWindow::sugenoAndOut()
 {
     return ( myFuzzy->sugenoStatus && ui->rb_output->isChecked() );
 }
@@ -183,22 +274,22 @@ bool FunctionWindow::sugenoOUT()
 void FunctionWindow::changeCurrentIO(void)
 {
     // clear ui
-    if(io != nullptr)
-    {
-        ui->cb_currentFuzzyFunction->clear();
-        clearAllGraphs();
-    }
+    //if(io != nullptr)
+    clearAllGraphs();
+    clearCurrentFunction();
+    ui->tableWidget->clear();
 
     io = getIO();
 
-    if(ioError()) return;
+    if(errorIO()) return;
 
-    if( sugenoOUT() ) // variable is Output AND is Sugeno
+    if( sugenoAndOut() ) // variable is Output AND is Sugeno
     {
         ui->funcionPlot->setHidden(true);
         ui->tableWidget->setHidden(false);
 
         ui->frame->setDisabled(true);
+
         ui->le_fuzzyRange->clear();
 
         ui->cb_InsertFunctionType->clear();
@@ -211,6 +302,7 @@ void FunctionWindow::changeCurrentIO(void)
     {
         ui->funcionPlot->setHidden(false);
         ui->tableWidget->setHidden(true);
+
         ui->frame->setDisabled(false);
 
         ui->funcionPlot->xAxis->setRange(io->range.at(0),io->range.at(1));
@@ -225,25 +317,24 @@ void FunctionWindow::changeCurrentIO(void)
         ui->lb_x->setText("Pontos no exino X");
     }
 
-    ui->tableWidget->clear();
-
+    // load functions
     FuzzyFunction function;
     for(int i=0; i<io->fuzzyFunctions.size(); i++) {
         function = io->fuzzyFunctions.at(i);
-        ui->cb_currentFuzzyFunction->addItem(function.name, QVariant(i));
 
-        if( sugenoOUT() )
-        {
-            QString currentText = myFuzzy->listSugenoFunctions.at( function.type );
-            QString stringPoints = "";
-            for(int i=0; i<function.range.size(); i++)
-                stringPoints += ( QString::number( function.range.at(i) ) + " " );
+        if( sugenoAndOut() )
+//        {
+//            QString currentText = myFuzzy->listSugenoFunctions.at( function.type );
+//            QString stringPoints = "";
+//            for(int i=0; i<function.range.size(); i++)
+//                stringPoints += ( QString::number( function.range.at(i) ) + " " );
 
-            ui->tableWidget->setRowCount( i + 1 );
-            ui->tableWidget->setItem(i, 0, new QTableWidgetItem( function.name ) );
-            ui->tableWidget->setItem(i, 1, new QTableWidgetItem( currentText ) );
-            ui->tableWidget->setItem(i, 2, new QTableWidgetItem( stringPoints ) );
-        }
+//            ui->tableWidget->setRowCount( i + 1 );
+//            ui->tableWidget->setItem(i, 0, new QTableWidgetItem( function.name ) );
+//            ui->tableWidget->setItem(i, 1, new QTableWidgetItem( currentText ) );
+//            ui->tableWidget->setItem(i, 2, new QTableWidgetItem( stringPoints ) );
+            addDataTable(&function);
+//        }
         else
             addGraph(&function, i);
     }
@@ -251,11 +342,11 @@ void FunctionWindow::changeCurrentIO(void)
 
 void FunctionWindow::changeIORange(void)
 {
+    if(errorIO()) return;
+
     QString range = ui->le_fuzzyRange->text();
     QStringList numberPoints;
     double newStart, newEnd;
-
-    if(ioError()) return;
 
     numberPoints = range.split(QRegExp("\\s+"), QString::SkipEmptyParts);
 
@@ -268,9 +359,21 @@ void FunctionWindow::changeIORange(void)
     }
 
     newStart = numberPoints.at(0).toDouble(); // start range
-    newEnd = numberPoints.at(1).toDouble(); // end range
+    newEnd   = numberPoints.at(1).toDouble(); // end range
 
     if(newStart == io->range[0] && newEnd == io->range[1]) return;
+
+    // clear old data
+    {
+        clearCurrentFunction();
+
+        io->Clear();
+
+        if(sugenoAndOut())
+            ui->tableWidget->clear();
+        else
+            clearAllGraphs();
+    }
 
     io->range[0] = newStart;
     io->range[1] = newEnd;
@@ -278,22 +381,18 @@ void FunctionWindow::changeIORange(void)
     ui->funcionPlot->xAxis->setRange(io->range[0], io->range[1]);
     ui->funcionPlot->replot();
 
-    clearAllGraphs();
-    io->fuzzyFunctions.clear();
-
-    updateCurrentData();
 }
 
 void FunctionWindow::insertFunction(void)
 {
-    if(ioError()) return;
+    if(errorIO()) return;
 
     QString titleWindow;
     FuzzyFunction newFunction;
     QStringList points;
     QString stringPoints;
     int graphId;
-    int rowTable;
+    //int rowTable;
 
     int currentIndex = ui->cb_InsertFunctionType->currentIndex();
     QString currentText = ui->cb_InsertFunctionType->currentText();
@@ -324,53 +423,50 @@ void FunctionWindow::insertFunction(void)
         for(int i=0; i<points.size(); i++)
             newFunction.range.push_back( points.at(i).toDouble() );
 
-        if( sugenoOUT() )
+        if( sugenoAndOut() ) // is Sugeno
         {
-            // is Sugeno
-            // ------------------
-
             titleWindow = "Valores Sugeno";
 
-            int nMultSugeno = 0;
+            int nMultSugeno = 1;
             if(myFuzzy->statusError) nMultSugeno += 1;
             if(myFuzzy->statusErrorFiDerivative) nMultSugeno += 1;
             if(myFuzzy->statusErrorSeDerivative) nMultSugeno += 1;
 
-            nMultSugeno += 1;
-
             // validation
-            if(currentIndex == 0) { // const
-
-                if(points.size() != 1) {
-                    QMessageBox::critical(0, titleWindow,
-                        "Isira apenas um valor!");
-                    return;
-                }
-            } else if(currentIndex == 1) { // linear
-                if(points.size() != nMultSugeno) {
-                    QMessageBox::critical(0, titleWindow,
-                        "Isira " + QString::number(nMultSugeno) + " valores!");
-                    return;
+            {
+                if(currentIndex == 0) { // const
+                    if(points.size() != 1) {
+                        QMessageBox::critical(0, titleWindow,
+                            "Isira apenas um valor!");
+                        return;
+                    }
+                } else if(currentIndex == 1) { // linear
+                    if(points.size() != nMultSugeno) {
+                        QMessageBox::critical(0, titleWindow,
+                            "Isira " + QString::number(nMultSugeno) + " valores!");
+                        return;
+                    }
                 }
             }
             // END validation
             // --------------
 
-            rowTable = ui->tableWidget->rowCount();
-            ui->tableWidget->setRowCount( rowTable + 1 );
-            ui->tableWidget->setItem(rowTable, 0, new QTableWidgetItem( newFunction.name ) );
-            ui->tableWidget->setItem(rowTable, 1, new QTableWidgetItem( currentText ) );
-            ui->tableWidget->setItem(rowTable, 2, new QTableWidgetItem( stringPoints ) );
+//            rowTable = ui->tableWidget->rowCount();
+//            ui->tableWidget->setRowCount( rowTable + 1 );
+//            ui->tableWidget->setItem(rowTable, 0, new QTableWidgetItem( newFunction.name ) );
+//            ui->tableWidget->setItem(rowTable, 1, new QTableWidgetItem( currentText ) );
+//            ui->tableWidget->setItem(rowTable, 2, new QTableWidgetItem( stringPoints ) );
+
+            addDataTable(&newFunction);
         }
         else
         {
-            // is Mandani
-            // ------------------
-
             titleWindow = "Inserir função";
 
             // before adding new function
             graphId = io->fuzzyFunctions.size();
+
+            qDebug() << "graphId: " << graphId;
 
             // validade range (number of points)
             {
@@ -408,39 +504,56 @@ void FunctionWindow::insertFunction(void)
         // clear current data
         ui->le_InsertFunctionName->clear();
         ui->le_InsertRangeFunction->clear();
-        //ui->cb_InsertFunctionType->setCurrentIndex(0);
+        ui->cb_InsertFunctionType->setCurrentIndex(0);
 
         // add new function of validation
         io->fuzzyFunctions.push_back(newFunction);
-
-        updateCurrentData();
     }
 }
 
 void FunctionWindow::deleteFunction(void)
 {
-    int id = ui->cb_currentFuzzyFunction->currentIndex();
+    if(errorIO()) return;
+    if(currentFunction < 0) return;
 
-    io->fuzzyFunctions.removeAt(id);
-
-    if(sugenoOUT())
+    if(sugenoAndOut())
     {
-        ui->tableWidget->removeRow(id);
+        ui->tableWidget->removeRow(currentFunction);
     }
     else
     {
-        ui->funcionPlot->removeGraph(id);
+        ui->funcionPlot->removeGraph(currentFunction);
         ui->funcionPlot->replot();
     }
 
-    updateCurrentData();
+    io->fuzzyFunctions.removeAt(currentFunction);
+
+    clearCurrentFunction();
+}
+
+void FunctionWindow::deleteAllFunctions(void)
+{
+    if(errorIO()) return;
+
+    if( sugenoAndOut() )
+        ui->tableWidget->clear();
+    else
+        clearAllGraphs();
+
+    io->Clear();
+
+    clearCurrentFunction();
 }
 
 void FunctionWindow::editFunction(void)
 {
-    int id = ui->cb_currentFuzzyFunction->currentIndex();
+    if(errorIO())
+        return;
 
-    FuzzyFunction function = io->fuzzyFunctions.at(id);
+    if(currentFunction < 0)
+        return;
+
+    FuzzyFunction function = io->fuzzyFunctions.at(currentFunction);
     QString funcionName    = function.name;
     QString functionRange  = "";
     int functionType       = function.type;
@@ -457,3 +570,8 @@ void FunctionWindow::editFunction(void)
 
 // end slots
 // -------------------
+
+void FunctionWindow::currentFunctionSugeno()
+{
+    setCurrentFunction(ui->tableWidget->currentRow());
+}

@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>Funções de Pertinência do Controlador Fuzzy</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_7">
+  <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="3">
     <widget class="QFrame" name="frame_2">
      <property name="minimumSize">
@@ -86,7 +86,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>240</width>
+       <width>280</width>
        <height>200</height>
       </size>
      </property>
@@ -125,6 +125,32 @@
          </widget>
         </item>
        </layout>
+      </item>
+      <item row="5" column="0">
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="2" column="0">
+       <spacer name="verticalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item row="4" column="0" colspan="2">
        <widget class="QFrame" name="frame">
@@ -174,34 +200,8 @@
         </layout>
        </widget>
       </item>
-      <item row="5" column="0">
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="0" column="0">
        <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="2" column="0">
-       <spacer name="verticalSpacer_3">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -226,7 +226,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>270</width>
+       <width>310</width>
        <height>200</height>
       </size>
      </property>
@@ -248,8 +248,8 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="le_InsertFunctionName">
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="le_InsertRangeFunction">
         <property name="minimumSize">
          <size>
           <width>127</width>
@@ -258,23 +258,28 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>127</width>
+          <width>999</width>
           <height>26</height>
          </size>
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_12">
-        <property name="font">
-         <font>
-          <family>Bitstream Charter</family>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
+      <item row="3" column="1">
+       <widget class="QPushButton" name="pb_insertFunction">
+        <property name="minimumSize">
+         <size>
+          <width>127</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>999</width>
+          <height>26</height>
+         </size>
         </property>
         <property name="text">
-         <string>Tipo</string>
+         <string>Inserir</string>
         </property>
        </widget>
       </item>
@@ -288,7 +293,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>127</width>
+          <width>999</width>
           <height>26</height>
          </size>
         </property>
@@ -308,24 +313,22 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="le_InsertRangeFunction">
-        <property name="minimumSize">
-         <size>
-          <width>127</width>
-          <height>26</height>
-         </size>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="font">
+         <font>
+          <family>Bitstream Charter</family>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>127</width>
-          <height>26</height>
-         </size>
+        <property name="text">
+         <string>Tipo</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QPushButton" name="pb_insertFunction">
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="le_InsertFunctionName">
         <property name="minimumSize">
          <size>
           <width>127</width>
@@ -334,12 +337,9 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>127</width>
+          <width>999</width>
           <height>26</height>
          </size>
-        </property>
-        <property name="text">
-         <string>Inserir</string>
         </property>
        </widget>
       </item>
@@ -350,22 +350,54 @@
     <widget class="QGroupBox" name="groupBox_5">
      <property name="minimumSize">
       <size>
-       <width>210</width>
+       <width>220</width>
        <height>200</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>210</width>
+       <width>230</width>
        <height>200</height>
       </size>
      </property>
      <property name="title">
       <string>Função corrente</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QComboBox" name="cb_currentFuzzyFunction"/>
+     <layout class="QGridLayout" name="gridLayout_7">
+      <item row="0" column="0" colspan="2">
+       <widget class="QFrame" name="frame_3">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_8">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_currentFunction">
+           <property name="text">
+            <string>Nenhuma função selecionada</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::RichText</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_currentRange">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item row="1" column="0">
        <widget class="QPushButton" name="pb_editFunction">
@@ -374,10 +406,17 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="1" column="1">
        <widget class="QPushButton" name="pb_deleteFunction">
         <property name="text">
          <string>Apagar</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QPushButton" name="pb_deleteAll">
+        <property name="text">
+         <string>Apagar todas</string>
         </property>
        </widget>
       </item>
@@ -405,7 +444,6 @@
   <tabstop>cb_InsertFunctionType</tabstop>
   <tabstop>le_InsertRangeFunction</tabstop>
   <tabstop>pb_insertFunction</tabstop>
-  <tabstop>cb_currentFuzzyFunction</tabstop>
   <tabstop>pb_editFunction</tabstop>
   <tabstop>pb_deleteFunction</tabstop>
   <tabstop>tableWidget</tabstop>
