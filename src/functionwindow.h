@@ -22,7 +22,8 @@ public:
 private:
     //void configGraph(void);
     void clearGraph(int & id);
-    void clearAllGraphs();
+    void clearAllGraphs(void);
+    void clearTable(void);
     void addGraph(const FuzzyFunction *function, const int &id);
     void addDataTable(const FuzzyFunction *function);
 
@@ -33,10 +34,14 @@ private:
     void setCurrentFunction(const int id);
     void clearCurrentFunction();
 
+    bool sugenoAndOut();
+
+    bool isEdit;
+
 private slots:
     void graphLegendClick(QCPLegend *l, QCPAbstractLegendItem *ai, QMouseEvent *me);
     void graphClick(QCPAbstractPlottable *plottable, QMouseEvent *me);
-    bool sugenoAndOut();
+
     void changeCurrentIO(void);
     void changeIORange(void);
 

@@ -480,4 +480,9 @@ void MainWindow::MandSugStatus()
         delete ui_rw;
         ui_rw = nullptr;
     }
+
+    if(ui_fw != nullptr) {
+        delete ui_fw;
+        ui_fw = nullptr;
+    }
 }

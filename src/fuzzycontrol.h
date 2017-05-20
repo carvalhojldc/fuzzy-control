@@ -74,11 +74,34 @@ class FuzzyControl
 {
 private:
     Fuzzy myFuzzy;
-    double setPoint;
-    double tankLevel_1, tankLevel_2;
-    double signal;
-    double error, dError, d2Error;
-    double previousError, previousPeviousError;
+
+    QVector<QVector<double>> defuzzification;
+
+    Defuzzification def;
+
+    Array3D *alpha;
+    Array3D *rules;
+    QVector<double> fss;
+
+    double setPoint, \
+           tankLevel_1, \
+           tankLevel_2, \
+           signal;
+
+    double error, \
+           dError, \
+           d2Error, \
+           previousError, \
+           previousPeviousError, \
+           valueInp1, \
+           valueInp2, \
+           valueInp3;
+
+    double controlOutput, \
+           previousControlOutput, \
+           finalControlOutput;
+
+
     /*
       -> In a PID control ( pid = p + i + d )
         u(t) = e + int(e) + d(e)/dt
@@ -88,18 +111,6 @@ private:
 
         PS: e means error
     */
-
-    double valueInp1, valueInp2, valueInp3;
-
-    double controlOutput, previousControlOutput, finalControlOutput;
-
-    QVector<QVector<double>> defuzzification;
-
-    Defuzzification def;
-
-    Array3D *alpha;
-    Array3D *rules;
-    QVector<double> fss;
 
 public:
     FuzzyControl();
@@ -112,6 +123,7 @@ public:
 private:
     double getMin(const double a, const double b, const double c) const;
     double sugeno(void);
+    double mamdani(void);
 };
 
 #endif // FUZZYCONTROL_H
