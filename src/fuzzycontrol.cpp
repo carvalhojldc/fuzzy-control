@@ -95,14 +95,14 @@ double FuzzyControl::getControl(double tankLevel_2)
 
     // defuzzification
     {
-        defuzzification.clear();
+        fuzzification.clear();
 
-        defuzzification.push_back( \
-                def.getDefuzzification(myFuzzy.error.fuzzyFunctions, error) );
-        defuzzification.push_back( \
-                def.getDefuzzification(myFuzzy.errorFirstDerivative.fuzzyFunctions, dError) );
-        defuzzification.push_back( \
-                def.getDefuzzification(myFuzzy.errorSecondDerivative.fuzzyFunctions, d2Error) );
+        fuzzification.push_back( \
+                fuzz.getFuzzification(myFuzzy.error.fuzzyFunctions, error) );
+        fuzzification.push_back( \
+                fuzz.getFuzzification(myFuzzy.errorFirstDerivative.fuzzyFunctions, dError) );
+        fuzzification.push_back( \
+                fuzz.getFuzzification(myFuzzy.errorSecondDerivative.fuzzyFunctions, d2Error) );
 
         valueInp1 = error;
         valueInp2 = dError;
@@ -111,32 +111,20 @@ double FuzzyControl::getControl(double tankLevel_2)
     // END defuzzification
     //------------
 
-    if(myFuzzy.sugenoStatus)
+    //if(myFuzzy.sugenoStatus)
+    //{
         controlOutput = sugeno();
-    else if(myFuzzy.mamdaniStatus)
-        controlOutput = mamdani();
-    else
-        controlOutput = 0.0;
+    //}
+//    else if(myFuzzy.mamdaniStatus)
+//        controlOutput = mamdani();
+    //else
+    //    controlOutput = 0.0;
     //
 
-
-    // config output
-    {
-        if(myFuzzy.type == FUZZY_P)
-        {
-            finalControlOutput = controlOutput;
-        }
-        else if(myFuzzy.type  == FUZZY_PD)
-        {
-            finalControlOutput = controlOutput;
-        }
-        else
-        {
-            finalControlOutput = controlOutput + previousControlOutput;
-        }
-    }
-    // END config output
-    //------------
+    if(myFuzzy.type == FUZZY_P || myFuzzy.type == FUZZY_PD)
+        finalControlOutput = controlOutput;
+    else // FUZZY_PI, FUZZY_PID
+        finalControlOutput = controlOutput + previousControlOutput;    
 
     return finalControlOutput;
 }
@@ -155,6 +143,7 @@ double FuzzyControl::getMin(const double a, const double b, const double c) cons
 
 double FuzzyControl::sugeno(void)
 {
+    qDebug() << "sugeno";
     QList<FuzzyRule> rule;
     FuzzyFunction myFF;
     double value;
@@ -166,11 +155,15 @@ double FuzzyControl::sugeno(void)
     {
         for(int j=0; j<alpha->getWidth(); j++)
             for(int k=0; k<alpha->getDepth(); k++)
+            {
                 alpha->setValue(i,j,k, \
-                        getMin( defuzzification[0][i], defuzzification[1][j], defuzzification[2][k] ) );
+                        getMin( fuzzification[0][i], fuzzification[1][j], fuzzification[2][k] ) );
+                rules->setValue(i,j,k, 0.0);
+            }
     }
 
     // Sugeno terms
+    fss.clear();
     for(int f=0; f<myFuzzy.output.fuzzyFunctions.size(); f++)
     {
         myFF = myFuzzy.output.fuzzyFunctions.at(f);
@@ -223,57 +216,59 @@ double FuzzyControl::sugeno(void)
 
 double FuzzyControl::mamdani(void)
 {
-    QList<FuzzyRule> rule;
-    double s1 = 0, s2 = 0;
-    int x=0, y=0, z=0;
+//    qDebug() << "mamdani";
 
-    double areaCenter;
-    double area;
+//    QList<FuzzyRule> rule;
+//    double s1 = 0, s2 = 0;
+//    int x=0, y=0, z=0;
 
-    // Mat Alpha
-    for(int i=0; i<alpha->getHeight(); i++)
-    {
-        for(int j=0; j<alpha->getWidth(); j++)
-            for(int k=0; k<alpha->getDepth(); k++)
-                alpha->setValue(i,j,k, \
-                        getMin( defuzzification[0][i], defuzzification[1][j], defuzzification[2][k] ) );
-    }
+//    double areaCenter;
+//    double area;
 
-    // Mat Rules
-    for(int r=0; r<myFuzzy.rules.size(); r++)
-    {
-        rule = myFuzzy.rules.at(r);
+//    // Mat Alpha
+//    for(int i=0; i<alpha->getHeight(); i++)
+//    {
+//        for(int j=0; j<alpha->getWidth(); j++)
+//            for(int k=0; k<alpha->getDepth(); k++)
+//                alpha->setValue(i,j,k, \
+//                        getMin( defuzzification[0][i], defuzzification[1][j], defuzzification[2][k] ) );
+//    }
 
-        // first
-        x = rule.at(0).idFunction;
+//    // Mat Rules
+//    for(int r=0; r<myFuzzy.rules.size(); r++)
+//    {
+//        rule = myFuzzy.rules.at(r);
 
-        if(rule.size() != 2)
-            y = rule.at(1).idFunction;
+//        // first
+//        x = rule.at(0).idFunction;
 
-        if(rule.size() == 4)
-            z = rule.at(2).idFunction;
+//        if(rule.size() != 2)
+//            y = rule.at(1).idFunction;
 
-        areaCenter = ( myFuzzy.output.fuzzyFunctions.at( rule.last().idFunction ).range.first() + \
-            myFuzzy.output.fuzzyFunctions.at( rule.last().idFunction ).range.last() ) / 2;
+//        if(rule.size() == 4)
+//            z = rule.at(2).idFunction;
 
-        rules->setValue(x,y,z, areaCenter );
-    }
+//        areaCenter = ( myFuzzy.output.fuzzyFunctions.at( rule.last().idFunction ).range.first() + \
+//            myFuzzy.output.fuzzyFunctions.at( rule.last().idFunction ).range.last() ) / 2;
 
-    for(int i=0; i<alpha->getHeight(); i++)
-    {
-        for(int j=0; j<alpha->getWidth(); j++)
-            for(int k=0; k<alpha->getDepth(); k++)
-            {
-                areaCenter = rules->getValue(i,j,k);
-                area       = alpha->getValue(i,j,k) * areaCenter;
+//        rules->setValue(x,y,z, areaCenter );
+//    }
 
-                s1 += (area * areaCenter);
-                s2 += area;
-            }
-    }
+//    for(int i=0; i<alpha->getHeight(); i++)
+//    {
+//        for(int j=0; j<alpha->getWidth(); j++)
+//            for(int k=0; k<alpha->getDepth(); k++)
+//            {
+//                areaCenter = rules->getValue(i,j,k);
+//                area       = alpha->getValue(i,j,k) * areaCenter;
 
-    qDebug() << "saida " << s1/s2;
-    return s1/s2;
+//                s1 += (area * areaCenter);
+//                s2 += area;
+//            }
+//    }
+
+//    qDebug() << "saida " << s1/s2;
+//    return s1/s2;
 }
 
 

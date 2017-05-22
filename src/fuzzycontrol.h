@@ -5,7 +5,7 @@
 #include "array3d.h"
 #include <QDebug>
 
-class Defuzzification
+class Fuzzification
 {
 private:
 
@@ -41,7 +41,7 @@ private:
     }
 
 public:
-    QVector<double> getDefuzzification(const QList<FuzzyFunction> & functions, const double valueX)
+    QVector<double> getFuzzification(const QList<FuzzyFunction> & functions, const double valueX)
     {
         QVector<double> data;
 
@@ -51,20 +51,20 @@ public:
         }
 
         FuzzyFunction ff;
-        double defuzzification;
+        double fuzzification;
 
         for(int f=0; f<functions.size(); f++)
         {
             ff = functions.at(f);
 
             if(ff.type == 0)
-                defuzzification = triangle(ff.range, valueX);
+                fuzzification = triangle(ff.range, valueX);
             else if(ff.type == 1)
-                defuzzification = trapeze(ff.range, valueX);
+                fuzzification = trapeze(ff.range, valueX);
             else
-                defuzzification = 0;
+                fuzzification = 0;
 
-            data.push_back( defuzzification);
+            data.push_back( fuzzification);
         }
         return data;
     }
@@ -75,9 +75,9 @@ class FuzzyControl
 private:
     Fuzzy myFuzzy;
 
-    QVector<QVector<double>> defuzzification;
+    QVector<QVector<double>> fuzzification;
 
-    Defuzzification def;
+    Fuzzification fuzz;
 
     Array3D *alpha;
     Array3D *rules;
