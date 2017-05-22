@@ -93,7 +93,7 @@ double FuzzyControl::getControl(double tankLevel_2)
 
     previousControlOutput = controlOutput;
 
-    // defuzzification
+    // fuzzification
     {
         fuzzification.clear();
 
@@ -108,7 +108,7 @@ double FuzzyControl::getControl(double tankLevel_2)
         valueInp2 = dError;
         valueInp3 = d2Error;
     }
-    // END defuzzification
+    // END fuzzification
     //------------
 
     //if(myFuzzy.sugenoStatus)

@@ -48,11 +48,16 @@ void Connection::setConnection()
     {
         quanser = new Quanser(ipAdress.toLatin1().data(), port);
 
+
         if(quanser->getStatus() == false)
         {
             delete quanser;
             quanser = nullptr;
+
+
+            qDebug() << "não conectou!! \n$$$$\n$$$$\n$$$$";
         }
+        qDebug() << "conectou!! \n####\n####";
     }
 
     this->hide();

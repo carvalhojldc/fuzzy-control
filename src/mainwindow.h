@@ -19,6 +19,11 @@
 
 #include <QDebug>
 
+#include <thread>
+#include <chrono>
+
+const auto timeWindow = std::chrono::milliseconds(100);
+
 namespace Ui {
 class MainWindow;
 }
@@ -35,7 +40,6 @@ private slots:
     void connectServer();
 
     void UI_configGraphs();
-    //void UI_configGraphRead();
 
     void UI_DisplayGraph();
 
@@ -66,11 +70,7 @@ private:
     Fuzzy          myFuzzy;
     FuzzyControl   fuzzyControl;
 
-   // QTimer *timerFuzzyControl;
-   // QTimer *timerGraph;
-
-    QThread *threadFuzzyControl;
-    QThread *threadGraph;
+    std::thread *threadControl;
 
     const QVector<QString> graphRead       = { "Erro", "Set Point", "Tanque 1", "Tanque 2" };
     const QVector<QString> graphReadColor  = { "red",  "black",     "blue",     "green" };
@@ -91,16 +91,10 @@ private:
 
     double calculatedSignal = 0.0;
     double sendSignal       = 0.0;
-//    double sendSignal_temp = 0;
     double error            = 0.0;
     double tankLevel_1      = 0.0;
     double tankLevel_2      = 0.0;
     double fuzzySignal      = 0.0;
-
-//    bool stopWrite = false;
-
-    /* in ms */
-    const int timerSleep = 90;
 };
 
 #endif // MAINWINDOW_H

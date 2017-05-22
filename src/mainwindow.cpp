@@ -46,11 +46,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // config_ui
     {
-    //    ui->rb_mandani->setChecked(false);
-    //    ui->rb_sugeno->setChecked(true);
-
-        //myFuzzy.statusInputD = true;
-
         ui->cb_WriteChannel->setDisabled(true);
 
         // list of signs of write
@@ -79,24 +74,6 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     // END config_ui
 
-    // threads
-    {
-        threadFuzzyControl = new QThread(this);
-        threadGraph        = new QThread(this);
-
-        QTimer *timerGraph = new QTimer(0);
-        timerGraph->start( timerSleep );
-        timerGraph->moveToThread( threadGraph );
-
-        QTimer *timerControl = new QTimer(0);
-        timerControl->start( timerSleep );
-        timerControl->moveToThread( threadFuzzyControl );
-
-        connect(timerControl, SIGNAL(timeout()), this, SLOT(myFuzzyControl()));
-        connect(timerGraph, SIGNAL(timeout()), this, SLOT(myGraph()));
-    }
-    // end threads
-    // --------------
 
     // UI_connection
     {
@@ -111,11 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    threadFuzzyControl->quit();
-    threadFuzzyControl->wait();
-
-    threadGraph->quit();
-    threadGraph->wait();
+    delete threadControl;
 
     if(connection != nullptr)
         delete connection;
@@ -128,6 +101,7 @@ MainWindow::~MainWindow()
 
     if(ui != nullptr)
         delete ui;
+
 }
 
 void MainWindow::connectServer()
@@ -139,11 +113,11 @@ void MainWindow::connectServer()
         ui->labelStatus->setText(mensagem);
         ui->labelStatus->setStyleSheet("QLabel { color : green; }");
 
+        QTimer *timerGraphUpdate = new QTimer(this);
+        connect(timerGraphUpdate, SIGNAL(timeout()), this, SLOT(myGraph()));
+        timerGraphUpdate->start(timeWindow);
 
-        //UI_configGraphRead();
-
-        threadGraph->start();
-        threadFuzzyControl->start();
+        threadControl = new std::thread(&MainWindow::myFuzzyControl, this);
     }
     else
     {
@@ -166,7 +140,7 @@ void MainWindow::UI_configGraphs()
          ui->graphWrite->graph(i)->setName(graphWrite.at(i));
          //ui->graphWrite->graph(i)->setPen(QPen(graphWriteColor.at((i))));
 
-         if(i!=1)
+         if(i!=0)
              ui->graphWrite->graph(i)->setPen(QPen(graphWriteColor.at(i)));
          else
          {
@@ -195,8 +169,6 @@ void MainWindow::UI_configGraphs()
     // read
     ui->graphRead->legend->setVisible(true);
     ui->graphRead->axisRect()->insetLayout()->setInsetAlignment(0,Qt::AlignLeft|Qt::AlignBottom);
-
-
 
     for(int i=0; i<graphRead.size(); i++)
     {
@@ -228,34 +200,6 @@ void MainWindow::UI_configGraphs()
 
     ui->graphRead->replot();
 }
-
-//void MainWindow::UI_configGraphRead()
-//{
-//    ui->graphRead->legend->setVisible(true);
-//    ui->graphRead->axisRect()->insetLayout()->setInsetAlignment(0,Qt::AlignLeft|Qt::AlignBottom);
-
-//    for(int i=0; i<graphRead.size(); i++)
-//    {
-//        ui->graphRead->addGraph(); // red line
-//        ui->graphRead->graph(i)->setAntialiasedFill(false);
-//        ui->graphRead->graph(i)->setName(graphRead.at(i));
-//        ui->graphRead->graph(i)->setPen(QPen(graphReadColor.at(i)));
-//        ui->graphRead->graph(i)->setVisible(false);
-//        ui->graphRead->graph(i)->removeFromLegend();
-//    }
-
-//    ui->graphRead->xAxis->setLabel("Tempo (s)");
-//    ui->graphRead->yAxis->setRange(-1,31);
-//    ui->graphRead->yAxis->setNumberPrecision(2);
-//    ui->graphRead->yAxis->setLabel("Nível (cm) ");
-//    ui->graphRead->xAxis->setSubTickCount(10);
-
-//    ui->graphRead->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables );
-//    ui->graphRead->axisRect(0)->setRangeDrag(Qt::Vertical);
-//    ui->graphRead->axisRect(0)->setRangeZoom(Qt::Vertical);
-
-//    ui->graphRead->replot();
-//}
 
 void MainWindow::UI_DisplayGraph()
 {
@@ -384,10 +328,12 @@ double MainWindow::carrierSignal(double voltage)
 
 double MainWindow::travel(double calculatedSignal, double tankLevel_2)
 {
-    if(calculatedSignal > 4)
-        calculatedSignal = 4;
-    else if(calculatedSignal < -4)
-        calculatedSignal = -4;
+    double max = 4;
+    double min = -4;
+    if(calculatedSignal > max)
+        calculatedSignal = max;
+    else if(calculatedSignal < min)
+        calculatedSignal = min;
 
     if(tankLevel_2<=3 && calculatedSignal<0) calculatedSignal = 0;
 
@@ -398,34 +344,60 @@ double MainWindow::travel(double calculatedSignal, double tankLevel_2)
 
 void MainWindow::myFuzzyControl()
 {
-    double tank1=0, tank2=0, error_=0, sendSignal_=0, calculatedSignal_=0, fuzzySignal_;
-    qDebug() << "Controlador Fuzzy";
+    double tank1=0.0, tank2=0.0, error_=0.0, sendSignal_=0.0, calculatedSignal_=0.0, fuzzySignal_=0.0;
 
-    readLeavel1 == true ? tank1 = connection->getSignal(0) : tank1 = 0;
-    readLeavel2 == true ? tank2 = connection->getSignal(1) : tank2 = 0;
-
-    if(isWrite)
+    while(1)
     {
-        fuzzySignal_      = fuzzyControl.getControl(tank2);
-        error_            = fuzzyControl.getError();
-        calculatedSignal_ = carrierSignal(fuzzySignal_);
-        sendSignal_       = travel(calculatedSignal_, tank2);
+        auto start = std::chrono::steady_clock::now();
 
-        connection->sendSignal(channelWrite, sendSignal_);
-    }
+        // work
+        {
+            auto channelWrite = this->channelWrite;
 
-    {
-        this->tankLevel_1      = tank1;
-        this->tankLevel_2      = tank2;
-        this->error            = error_;
-        this->calculatedSignal = calculatedSignal_;
-        this->sendSignal       = sendSignal_;
-        this->fuzzySignal      = fuzzySignal_;
+            //readLeavel1 == true ? tank1 = connection->getSignal(0) : tank1 = 0;
+            //readLeavel2 == true ? tank2 = connection->getSignal(1) : tank2 = 0;
+            tank1 = connection->getSignal(0);
+            tank2 = connection->getSignal(1);
+
+            if(isWrite)
+            {
+                fuzzySignal_      = fuzzyControl.getControl(tank2);
+                error_            = fuzzyControl.getError();
+                calculatedSignal_ = carrierSignal(fuzzySignal_);
+                sendSignal_       = travel(calculatedSignal_, tank2);
+
+                connection->sendSignal(channelWrite, sendSignal_);
+                qDebug() << "sendSignal_: " << sendSignal_;
+            }
+
+            this->tankLevel_1      = tank1;
+            this->tankLevel_2      = tank2;
+            this->error            = error_;
+            this->calculatedSignal = calculatedSignal_;
+            this->sendSignal       = sendSignal_;
+            this->fuzzySignal      = fuzzySignal_;
+        }
+        // END work
+
+        auto end = std::chrono::steady_clock::now();
+        auto elapsed = end - start;
+
+        auto timeToWait = timeWindow - elapsed;
+        if(timeToWait > std::chrono::milliseconds::zero())
+            std::this_thread::sleep_for(timeToWait);
     }
 }
 
 void MainWindow::myGraph()
 {
+    auto tankLevel_1 = this->tankLevel_1;
+    auto tankLevel_2 = this->tankLevel_2;
+    auto sendSignal = this->sendSignal;
+    auto calculatedSignal = this->calculatedSignal;
+    auto error = this->error;
+    auto setPoint = this->setPoint;
+
+    qDebug() << "thread - grafico";
     static double timeWrite = 0;
 
     // write data
