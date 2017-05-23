@@ -58,6 +58,7 @@ private slots:
     void UI_configSignal(int signal);
 
     void updateData();
+    void stopData();
 
     void MandSugStatus();
 
@@ -95,6 +96,9 @@ private:
     double tankLevel_1      = 0.0;
     double tankLevel_2      = 0.0;
     double fuzzySignal      = 0.0;
+
+    bool updateWork = false;
+    bool stopWork = false;
 };
 
 #endif // MAINWINDOW_H

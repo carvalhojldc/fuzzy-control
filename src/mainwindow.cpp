@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pb_configFuzzyRules, SIGNAL(clicked(bool)), this, SLOT(UI_ruleWindow()));
 
     connect(ui->buttonAtualizar, SIGNAL(clicked(bool)), this, SLOT(updateData()));
+    connect(ui->buttonStop,  SIGNAL(clicked(bool)), this, SLOT(stopData()));
 
     // --------------
 
@@ -88,7 +89,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete threadControl;
+
+    {
+        this->stopWork = true;
+
+        threadControl->detach();
+        delete threadControl;
+
+        connection->sendSignal(channelWrite, 0.0);
+    }
 
     if(connection != nullptr)
         delete connection;
@@ -361,10 +370,22 @@ void MainWindow::myFuzzyControl()
 
             if(isWrite)
             {
-                fuzzySignal_      = fuzzyControl.getControl(tank2);
-                error_            = fuzzyControl.getError();
-                calculatedSignal_ = carrierSignal(fuzzySignal_);
-                sendSignal_       = travel(calculatedSignal_, tank2);
+                if(stopWork == false)
+                {
+                    fuzzySignal_      = fuzzyControl.getControl(tank2);
+                    error_            = fuzzyControl.getError();
+                    calculatedSignal_ = carrierSignal(fuzzySignal_);
+                    sendSignal_       = travel(calculatedSignal_, tank2);
+                }
+                else
+                {
+                    fuzzySignal_      = 0.0;
+                    error_            = 0.0;
+                    calculatedSignal_ = 0.0;
+                    sendSignal_       = 0.0;
+                    setPoint          = 0.0;
+                    isWrite           = false;
+                }
 
                 connection->sendSignal(channelWrite, sendSignal_);
                 qDebug() << "sendSignal: " << sendSignal_;
@@ -489,9 +510,16 @@ void MainWindow::updateData()
 //    readLeavel1  = ui->cb_channelRead0->isChecked();
 //    readLeavel2  = ui->cb_channelRead1->isChecked();
 
+    isWrite = false;
     fuzzyControl.setFuzzy(myFuzzy, setPoint);
 
-    isWrite = true;
+    isWrite  = true;
+    stopWork = false;
+}
+
+void MainWindow::stopData()
+{
+    this->stopWork = true;
 }
 
 void MainWindow::MandSugStatus()
