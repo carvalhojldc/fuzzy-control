@@ -88,7 +88,7 @@ double Connection::getSignal(const int channel)
         else return tankSimulation.getNivelTq2();
     }
     else
-        return quanser->readAD(channel);
+        return (quanser->readAD(channel)*6.25);
 }
 
 int Connection::sendSignal(const int channel, const double signal)

@@ -328,8 +328,8 @@ double MainWindow::carrierSignal(double voltage)
 
 double MainWindow::travel(double calculatedSignal, double tankLevel_2)
 {
-    double max = 4;
-    double min = -4;
+    double max = 3;
+    double min = -3;
     if(calculatedSignal > max)
         calculatedSignal = max;
     else if(calculatedSignal < min)
@@ -367,7 +367,7 @@ void MainWindow::myFuzzyControl()
                 sendSignal_       = travel(calculatedSignal_, tank2);
 
                 connection->sendSignal(channelWrite, sendSignal_);
-                qDebug() << "sendSignal_: " << sendSignal_;
+                qDebug() << "sendSignal: " << sendSignal_;
             }
 
             this->tankLevel_1      = tank1;
@@ -397,7 +397,6 @@ void MainWindow::myGraph()
     auto error = this->error;
     auto setPoint = this->setPoint;
 
-    qDebug() << "thread - grafico";
     static double timeWrite = 0;
 
     // write data
